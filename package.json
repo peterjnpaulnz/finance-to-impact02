@@ -1,0 +1,12 @@
+{
+  "name": "finance-to-impact",
+  "version": "1.0.0",
+  "description": "Finance to Impact - Climate Intelligence Platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

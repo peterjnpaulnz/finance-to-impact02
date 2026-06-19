@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Finance to Impact</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--g:#1A6B3C;--gm:#2E8B57;--gl:#E8F5EE;--gb:#B2D8C2;--w:#fff;--bg:#F9FAFB;--t:#1C1C1C;--tm:#4B5563;--tl:#9CA3AF;--bd:#E5E7EB;--r:#DC2626;--rl:#FEF2F2;--rb:#FECACA;--a:#D97706;--al:#FFFBEB;--ab:#FDE68A;--sw:260px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#fff;color:var(--t);line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
+button{cursor:pointer;font-family:inherit;border:none}
+input,select,textarea{font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--g);outline-offset:2px}
+a{color:var(--g);text-decoration:none}
+
+/* BANNER */
+#devbanner{background:var(--al);border-bottom:1px solid var(--ab);padding:.4rem 1rem;font-size:.8rem;color:var(--a);display:flex;justify-content:space-between;align-items:center}
+#devbanner button{background:none;color:var(--a);font-size:1rem}
+
+/* LOADING */
+#overlay{position:fixed;inset:0;background:rgba(255,255,255,.96);z-index:999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem}
+.ologo{font-size:1.8rem;font-weight:700;color:var(--g)}
+.otrack{width:300px;height:6px;background:var(--bd);border-radius:6px;overflow:hidden}
+.ofill{height:100%;background:linear-gradient(90deg,var(--g),var(--gm));animation:ld 2.5s ease-in-out infinite}
+@keyframes ld{0%{width:5%}50%{width:75%}100%{width:95%}}
+.omsg{font-size:.9rem;color:var(--tm)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.6rem 1.2rem;border-radius:8px;font-size:.9rem;font-weight:600;transition:all .2s;white-space:nowrap;border:none;cursor:pointer}
+.btnP{background:var(--g);color:#fff}.btnP:hover{background:var(--gm);transform:translateY(-1px)}
+.btnS{background:#fff;color:var(--g);border:1.5px solid var(--gb)}.btnS:hover{background:var(--gl)}
+.btnG{background:none;color:var(--tm);border:1.5px solid var(--bd)}.btnG:hover{background:var(--bg)}
+.btnD{background:var(--r);color:#fff}.btnD:hover{opacity:.9}
+.btnLg{padding:.875rem 1.75rem;font-size:1rem;border-radius:12px}
+.btnSm{padding:.35rem .8rem;font-size:.8rem}
+.wf{width:100%}
+
+/* FORMS */
+.fg{display:flex;flex-direction:column;gap:.35rem}
+.fl{font-size:.85rem;font-weight:600}
+.fi{width:100%;padding:.6rem .875rem;border:1.5px solid var(--bd);border-radius:8px;font-size:.9rem;background:#fff;transition:border .2s}
+.fi:focus{border-color:var(--g)}
+.fi::placeholder{color:var(--tl)}
+.fsel{width:100%;padding:.6rem .875rem;border:1.5px solid var(--bd);border-radius:8px;font-size:.9rem;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%234B5563' d='M0 0l5 5 5-5'/%3E%3C/svg%3E") no-repeat right .875rem center;appearance:none;cursor:pointer}
+.fsel:focus{border-color:var(--g)}
+.fta{width:100%;padding:.6rem .875rem;border:1.5px solid var(--bd);border-radius:8px;font-size:.9rem;background:#fff;resize:vertical;min-height:90px}
+.fta:focus{border-color:var(--g)}
+.mwrap{position:relative;display:flex;align-items:center}
+.mwrap .fi{padding-right:2.5rem}
+.micb{position:absolute;right:.5rem;width:26px;height:26px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;transition:all .2s}
+.micb:hover{background:var(--gm)}
+.micb.on{background:var(--r);animation:pulse 1s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(220,38,38,.4)}70%{box-shadow:0 0 0 8px rgba(220,38,38,0)}100%{box-shadow:0 0 0 0 rgba(220,38,38,0)}}
+.trow{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.togbtn{display:flex;background:var(--bg);border:1.5px solid var(--bd);border-radius:8px;overflow:hidden}
+.togbtn button{flex:1;padding:.45rem .875rem;font-size:.85rem;font-weight:500;background:none;color:var(--tm);border:none;cursor:pointer;transition:all .2s}
+.togbtn button.act{background:var(--g);color:#fff}
+.cbrow{display:flex;align-items:center;gap:.5rem;cursor:pointer}
+.cbrow input{width:16px;height:16px;accent-color:var(--g)}
+
+/* SWITCH */
+.sw{position:relative;display:inline-block;width:40px;height:22px}
+.sw input{opacity:0;width:0;height:0}
+.sl{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--bd);border-radius:22px;transition:.2s}
+.sl::before{content:"";position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s}
+input:checked+.sl{background:var(--g)}
+input:checked+.sl::before{transform:translateX(18px)}
+
+/* CARDS */
+.card{background:#fff;border:1.5px solid var(--bd);border-radius:12px;padding:1.5rem;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.cardG{background:var(--gl);border-color:var(--gb)}
+.cardR{background:var(--rl);border-color:var(--rb)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:.2rem .6rem;border-radius:20px;font-size:.75rem;font-weight:600}
+.bG{background:var(--gl);color:var(--g)}
+.bGr{background:var(--bg);color:var(--tm);border:1px solid var(--bd)}
+
+/* MSG */
+.msg{padding:.6rem .875rem;border-radius:8px;font-size:.85rem;margin-bottom:.5rem}
+.msgE{background:var(--rl);border:1.5px solid var(--rb);color:var(--r)}
+.msgS{background:var(--gl);border:1.5px solid var(--gb);color:var(--g)}
+.msgA{background:var(--al);border:1.5px solid var(--ab);color:var(--a)}
+
+/* AUTH */
+#authv{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;background:linear-gradient(135deg,#F0F9F4,#fff 60%,#F0F4F9);min-height:100vh}
+.acard{width:100%;max-width:460px;background:#fff;border:1.5px solid var(--bd);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.12);overflow:hidden}
+.ahead{background:var(--g);padding:2rem;text-align:center;color:#fff}
+.alogo{font-size:1.6rem;font-weight:700;letter-spacing:-.03em}
+.atag{font-size:.85rem;opacity:.85;margin-top:.25rem}
+.atabs{display:flex;border-bottom:1.5px solid var(--bd)}
+.atabs button{flex:1;padding:.875rem;font-size:.9rem;font-weight:600;background:none;color:var(--tm);border-bottom:2.5px solid transparent;cursor:pointer;transition:all .2s}
+.atabs button.act{color:var(--g);border-bottom-color:var(--g)}
+.abody{padding:1.75rem}
+.asec{display:flex;flex-direction:column;gap:1rem}
+.codebox{background:var(--gl);border:2px solid var(--gb);border-radius:8px;padding:1rem;text-align:center}
+.codeval{font-size:2rem;font-weight:700;color:var(--g);letter-spacing:.15em;margin:.5rem 0}
+
+/* DASHBOARD */
+#dashv{display:flex;min-height:100vh}
+.sbar{width:var(--sw);background:#fff;border-right:1.5px solid var(--bd);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:transform .2s}
+.slogo{padding:1.5rem 1.25rem 1rem;border-bottom:1.5px solid var(--bd)}
+.slogoT{font-size:1.1rem;font-weight:700;color:var(--g);letter-spacing:-.02em;line-height:1.2}
+.slogoS{font-size:.7rem;color:var(--tl);margin-top:2px}
+.snav{flex:1;padding:1rem .75rem;display:flex;flex-direction:column;gap:.25rem;overflow-y:auto}
+.nitem{display:flex;align-items:center;gap:.75rem;padding:.6rem .875rem;border-radius:8px;font-size:.9rem;font-weight:500;color:var(--tm);background:none;width:100%;text-align:left;cursor:pointer;border:none;transition:all .2s}
+.nitem:hover{background:var(--bg);color:var(--t)}
+.nitem.act{background:var(--gl);color:var(--g);font-weight:600}
+.sfooter{padding:1rem 1.25rem;border-top:1.5px solid var(--bd)}
+.sun{font-size:.85rem;font-weight:600}
+.sco{font-size:.75rem;color:var(--tl);margin-bottom:.75rem}
+.mcont{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.mhead{padding:1rem 2rem;border-bottom:1.5px solid var(--bd);display:flex;align-items:center;justify-content:space-between;background:#fff;position:sticky;top:0;z-index:50}
+.mheadT{font-size:1.1rem;font-weight:700}
+.pc{padding:2rem;flex:1}
+
+/* HOME */
+.greet{font-size:1.6rem;font-weight:700;margin-bottom:.25rem}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.5rem 0}
+.scard{background:#fff;border:1.5px solid var(--bd);border-radius:12px;padding:1.25rem;text-align:center}
+.snum{font-size:2rem;font-weight:700;color:var(--g);line-height:1}
+.slbl{font-size:.8rem;color:var(--tl);margin-top:.25rem}
+.srow{display:flex;align-items:center;justify-content:space-between;padding:.875rem 1rem;background:#fff;border:1.5px solid var(--bd);border-radius:8px;margin-bottom:.75rem}
+.stit{font-size:1.1rem;font-weight:700;margin-bottom:1rem}
+.divr{height:1.5px;background:var(--bd);margin:1.5rem 0}
+
+/* WIZARD */
+.wpbar{display:flex;align-items:center;margin-bottom:1.5rem;overflow-x:auto;padding-bottom:.25rem}
+.wps{display:flex;align-items:center;gap:.375rem;font-size:.75rem;font-weight:600;white-space:nowrap;color:var(--tl)}
+.wps.act{color:var(--g)}.wps.done{color:var(--gm)}
+.wpn{width:24px;height:24px;border-radius:50%;background:var(--bd);color:var(--tl);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0}
+.wps.act .wpn{background:var(--g);color:#fff}.wps.done .wpn{background:var(--gm);color:#fff}
+.wpsp{width:28px;height:2px;background:var(--bd);margin:0 4px;flex-shrink:0}
+.wpsp.done{background:var(--gm)}
+
+/* VOICE PANEL */
+.vp{background:var(--bg);border:1.5px solid var(--bd);border-radius:8px;margin-bottom:1rem;overflow:hidden}
+.vph{display:flex;align-items:center;justify-content:space-between;padding:.625rem 1rem;cursor:pointer}
+.vph:hover{background:rgba(0,0,0,.03)}
+.vpb{padding:1rem;display:flex;flex-wrap:wrap;gap:1rem;border-top:1.5px solid var(--bd)}
+.vtr{display:flex;align-items:center;gap:.5rem;font-size:.85rem;font-weight:500}
+
+/* STEP CARD */
+.scard2{background:#fff;border:1.5px solid var(--bd);border-radius:12px;padding:1.5rem;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:1.25rem}
+.sch{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;gap:1rem}
+.stitle{font-size:1.1rem;font-weight:700}
+.smsg{font-size:.9rem;color:var(--tm);line-height:1.6;background:var(--gl);border-left:3px solid var(--g);padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-bottom:1.25rem}
+.sfields{display:flex;flex-direction:column;gap:1rem}
+.wnav{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding-top:1rem;border-top:1.5px solid var(--bd)}
+.ofa{background:var(--al);border:1.5px solid var(--ab);border-radius:8px;padding:.75rem 1rem;font-size:.875rem;color:var(--a);margin-top:.75rem;display:flex;gap:.5rem}
+.clog{background:var(--bg);border:1.5px solid var(--bd);border-radius:8px;padding:1rem;max-height:200px;overflow-y:auto;font-size:.85rem;display:flex;flex-direction:column;gap:.5rem}
+.lfit{color:var(--g);font-weight:600}.lyou{color:var(--tm);font-weight:600}
+
+/* FIN TABLE */
+.ftbl{width:100%;border-collapse:collapse;font-size:.85rem}
+.ftbl th{background:var(--bg);padding:.5rem .75rem;text-align:left;font-size:.75rem;font-weight:600;color:var(--tm);border-bottom:1.5px solid var(--bd)}
+.ftbl td{padding:.35rem .45rem;border-bottom:1px solid var(--bd);vertical-align:middle}
+.ftbl tr.dov{background:var(--gl)}
+.dh{color:var(--tl);cursor:grab;font-size:1rem}
+.ftbl input,.ftbl select{border:1px solid var(--bd);border-radius:4px;padding:.25rem .45rem;font-size:.82rem;width:100%;background:#fff}
+.ftbl input:focus,.ftbl select:focus{border-color:var(--g);outline:none}
+
+/* SCOPE CARDS */
+.scgrid{display:grid;grid-template-columns:1fr;gap:.75rem}
+.sccard{border:2px solid var(--bd);border-radius:8px;padding:1rem;cursor:pointer;transition:all .2s;display:flex;align-items:flex-start;gap:.75rem}
+.sccard:hover,.sccard.sel{border-color:var(--g);background:var(--gl)}
+.scchk{width:20px;height:20px;border:2px solid var(--bd);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .2s}
+.sccard.sel .scchk{background:var(--g);border-color:var(--g);color:#fff}
+.rlist{display:flex;flex-direction:column;gap:.5rem}
+.rcard{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border:1.5px solid var(--bd);border-radius:8px;background:#fff;cursor:pointer;transition:all .2s}
+.rcard:hover{border-color:var(--gb)}.rcard.sel{border-color:var(--g);background:var(--gl)}.rcard.dov{opacity:.7;background:var(--gl)}
+
+/* DROP ZONE */
+.dzone{border:2.5px dashed var(--bd);border-radius:12px;padding:3rem 2rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);position:relative}
+.dzone:hover,.dzone.da{border-color:var(--g);background:var(--gl)}
+.dzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dztit{font-size:1rem;font-weight:600}.dzsub{font-size:.8rem;color:var(--tl);margin-top:.25rem}
+.facc{background:var(--gl);border:1.5px solid var(--gb);border-radius:8px;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;font-size:.875rem;margin-top:.75rem}
+
+/* REPORTS */
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+.rpanel{border:1.5px solid var(--bd);border-radius:12px;overflow:hidden}
+.rph{background:var(--g);color:#fff;padding:1rem 1.25rem;font-weight:700;font-size:.9rem}
+.rpb{padding:1.25rem;max-height:500px;overflow-y:auto;font-size:.85rem;line-height:1.7}
+.rpb h1{font-size:1.1rem;color:var(--g);margin:1rem 0 .5rem}
+.rpb h2{font-size:1rem;margin:.875rem 0 .375rem;border-bottom:1px solid var(--bd);padding-bottom:.25rem}
+.rpb h3{font-size:.9rem;font-weight:600;margin:.75rem 0 .25rem}
+.rpb p{margin:.35rem 0}.rpb ul,.rpb ol{padding-left:1.25rem;margin:.35rem 0}
+.rpb table{width:100%;border-collapse:collapse;font-size:.8rem;margin:.5rem 0}
+.rpb th{background:var(--gl);padding:.35rem .5rem;font-size:.75rem;font-weight:600;text-align:left}
+.rpb td{padding:.3rem .5rem;border-bottom:1px solid var(--bd)}
+.rpb code{background:var(--bg);padding:.1rem .3rem;border-radius:3px}
+.ract{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;padding:1.25rem;background:var(--bg);border:1.5px solid var(--bd);border-radius:12px}
+
+/* SESSIONS TABLE */
+.stbl{width:100%;border-collapse:collapse;font-size:.875rem}
+.stbl th{text-align:left;padding:.6rem .875rem;background:var(--bg);font-size:.75rem;font-weight:600;color:var(--tm);border-bottom:1.5px solid var(--bd)}
+.stbl td{padding:.75rem .875rem;border-bottom:1px solid var(--bd)}
+.stbl tr:hover td{background:var(--bg)}
+.stbl tr.dov td{background:var(--gl)}
+.sbar2{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.sbar2 input{flex:1;padding:.5rem .875rem;border:1.5px solid var(--bd);border-radius:8px;font-size:.875rem}
+
+/* SETTINGS */
+.stsec{margin-bottom:2rem}
+.stst{font-size:.85rem;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1.5px solid var(--bd)}
+
+/* ADMIN */
+#adminv{min-height:100vh;background:var(--bg)}
+.adh{background:var(--g);color:#fff;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
+.adh h1{font-size:1.1rem;font-weight:700}
+.adc{padding:2rem;max-width:1200px;margin:0 auto}
+.adsg{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
+.adsc{background:#fff;border:1.5px solid var(--bd);border-radius:12px;padding:1.25rem;text-align:center}
+.cbr{display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem;font-size:.8rem}
+.cbl{width:160px;text-align:right;color:var(--tm);flex-shrink:0}
+.cbt{flex:1;background:var(--bd);border-radius:4px;height:16px;overflow:hidden}
+.cbf{height:100%;background:var(--g);border-radius:4px;transition:width .6s}
+.cbv{width:30px;font-weight:600}
+
+/* MUTE */
+.muteb{background:none;border:1.5px solid var(--bd);border-radius:8px;padding:.35rem .6rem;cursor:pointer;display:flex;align-items:center;gap:.35rem;font-size:.8rem;color:var(--tm);transition:all .2s}
+.muteb:hover{background:var(--bg)}.muteb.muted{color:var(--r);border-color:var(--rb)}
+.repb{background:none;border:none;color:var(--g);cursor:pointer;opacity:.7;transition:opacity .2s;display:inline-flex;align-items:center}
+.repb:hover{opacity:1}
+
+/* FOOTER */
+#footer{text-align:center;padding:1rem;font-size:.75rem;color:var(--tl);border-top:1.5px solid var(--bd);background:#fff}
+
+@media(max-width:768px){
+  .sbar{transform:translateX(-100%)}.sbar.open{transform:translateX(0);box-shadow:0 8px 32px rgba(0,0,0,.12)}
+  .mcont{margin-left:0}.sgrid{grid-template-columns:1fr 1fr}.trow{grid-template-columns:1fr}
+  .rgrid{grid-template-columns:1fr}.adsg{grid-template-columns:1fr 1fr}.pc{padding:1rem}
+  .mhead{padding:.875rem 1rem}
+}
+@media(max-width:480px){.sgrid,.adsg{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="devbanner">
+  <span>Developer Mode: Insert your Anthropic API key in the source file before sharing this app.</span>
+  <button onclick="this.parentElement.remove()">&#x2715;</button>
+</div>
+
+<div id="overlay" style="display:none;flex-direction:column;">
+  <div class="ologo">Finance to Impact</div>
+  <div class="otrack"><div class="ofill"></div></div>
+  <div class="omsg" id="omsg">Preparing your report...</div>
+</div>
+
+<!-- AUTH -->
+<div id="authv">
+  <div class="acard">
+    <div class="ahead"><div class="alogo">Finance to Impact</div><div class="atag">Turn your financial data into climate intelligence.</div></div>
+    <div class="atabs" id="atabs">
+      <button class="act" onclick="showTab2('si')">Sign In</button>
+      <button onclick="showTab2('reg')">Register</button>
+    </div>
+
+    <div id="t-si" class="abody"><div class="asec">
+      <div id="simsg"></div>
+      <div class="fg"><label class="fl">Email address</label><input class="fi" type="email" id="si-em" placeholder="you@company.com"/></div>
+      <div class="fg"><label class="fl">Access Code</label><input class="fi" type="text" id="si-co" placeholder="e.g. 7234KP" maxlength="6" style="text-transform:uppercase;letter-spacing:.1em"/></div>
+      <button class="btn btnP wf btnLg" onclick="doSignIn()">Sign In</button>
+      <div style="text-align:center;font-size:.85rem;"><a href="#" onclick="showForgot();return false;">Forgot your code?</a></div>
+    </div></div>
+
+    <div id="t-reg" class="abody" style="display:none"><div class="asec">
+      <div id="regmsg"></div>
+      <div id="regform"><div class="asec">
+        <div class="trow">
+          <div class="fg"><label class="fl">First Name</label><input class="fi" type="text" id="r-fn" placeholder="Jane"/></div>
+          <div class="fg"><label class="fl">Last Name</label><input class="fi" type="text" id="r-ln" placeholder="Smith"/></div>
+        </div>
+        <div class="fg"><label class="fl">Email address</label><input class="fi" type="email" id="r-em" placeholder="you@company.com"/></div>
+        <div class="fg"><label class="fl">Company Name</label><input class="fi" type="text" id="r-co" placeholder="Acme Ltd"/></div>
+        <div class="fg"><label class="fl">Industry</label>
+          <select class="fsel" id="r-ind">
+            <option value="">Select industry...</option>
+            <option>Manufacturing</option><option>Energy</option><option>Finance and Investment</option>
+            <option>Technology</option><option>Retail</option><option>Transport and Logistics</option>
+            <option>Healthcare</option><option>Agriculture</option><option>Construction</option>
+            <option>Professional Services</option><option>Other</option>
+          </select>
+        </div>
+        <label class="cbrow"><input type="checkbox" id="r-tc"/><span style="font-size:.875rem;">I agree to the Terms of Use</span></label>
+        <button class="btn btnP wf btnLg" onclick="doRegister()">Register</button>
+      </div></div>
+      <div id="regsuc" style="display:none">
+        <p style="font-size:.875rem;color:var(--tm);margin-bottom:1rem;">Welcome! Your personal access code is shown below. Please save it securely. You will use this code to sign in.</p>
+        <div class="codebox"><div style="font-size:.8rem;font-weight:600;color:var(--tm);">YOUR ACCESS CODE</div><div class="codeval" id="newcode"></div><button class="btn btnS btnSm" onclick="copyCode()">Copy Code</button></div>
+        <button class="btn btnP wf btnLg" style="margin-top:1rem;" onclick="afterReg()">Continue to Sign In</button>
+      </div>
+    </div></div>
+
+    <div id="t-forgot" class="abody" style="display:none"><div class="asec">
+      <p style="font-size:.875rem;color:var(--tm);">Enter your email and company name to retrieve your access code.</p>
+      <div id="fgtmsg"></div>
+      <div class="fg"><label class="fl">Email address</label><input class="fi" type="email" id="f-em"/></div>
+      <div class="fg"><label class="fl">Company Name</label><input class="fi" type="text" id="f-co"/></div>
+      <button class="btn btnP wf" onclick="doForgot()">Retrieve Code</button>
+      <div id="fgtres"></div>
+      <div style="text-align:center;font-size:.85rem;"><a href="#" onclick="showTab2('si');return false;">Back to Sign In</a></div>
+    </div></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashv" style="display:none">
+  <aside class="sbar" id="sbar">
+    <div class="slogo"><div class="slogoT">Finance to Impact</div><div class="slogoS">Climate Intelligence Platform</div></div>
+    <nav class="snav">
+      <button class="nitem act" id="ni-home" onclick="showDTab('home')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home
+      </button>
+      <button class="nitem" id="ni-report" onclick="showDTab('report')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>New Report
+      </button>
+      <button class="nitem" id="ni-sess" onclick="showDTab('sess')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>My Sessions
+      </button>
+      <button class="nitem" id="ni-set" onclick="showDTab('set')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings
+      </button>
+    </nav>
+    <div class="sfooter"><div class="sun" id="sbn"></div><div class="sco" id="sbco"></div><button class="btn btnG btnSm wf" onclick="doSignOut()">Sign Out</button></div>
+  </aside>
+
+  <div class="mcont">
+    <header class="mhead">
+      <button id="mmbtn" onclick="toggleSbar()" style="display:none;background:none;border:none;cursor:pointer;padding:.25rem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="mheadT" id="mhtitle">Home</div>
+      <div id="mutearea"></div>
+    </header>
+
+    <!-- HOME -->
+    <div id="dt-home" class="pc">
+      <div class="greet" id="hgreet"></div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem" id="hbadge"></div>
+      <div class="sgrid">
+        <div class="scard"><div class="snum" id="st-s">0</div><div class="slbl">Total Sessions</div></div>
+        <div class="scard"><div class="snum" id="st-r">0</div><div class="slbl">Reports Generated</div></div>
+        <div class="scard"><div class="snum" id="st-l">--</div><div class="slbl">Last Activity</div></div>
+      </div>
+      <button class="btn btnP btnLg" onclick="showDTab('report')" style="margin-bottom:1.5rem">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Start New Report
+      </button>
+      <div class="stit">Recent Sessions</div>
+      <div id="hrsess"></div>
+    </div>
+
+    <!-- REPORT -->
+    <div id="dt-report" class="pc" style="display:none">
+      <div style="display:flex;margin-bottom:1.5rem;border:1.5px solid var(--bd);border-radius:8px;overflow:hidden;width:fit-content">
+        <button id="mb-g" style="padding:.6rem 1.2rem;font-size:.9rem;font-weight:600;background:var(--g);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;gap:.5rem" onclick="setMode('g')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Guided Conversation
+        </button>
+        <button id="mb-u" style="padding:.6rem 1.2rem;font-size:.9rem;font-weight:600;background:var(--bg);color:var(--tm);border:none;cursor:pointer;display:flex;align-items:center;gap:.5rem" onclick="setMode('u')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>Upload Financial File
+        </button>
+      </div>
+
+      <!-- GUIDED -->
+      <div id="gmode">
+        <div class="vp">
+          <div class="vph" onclick="toggleVP()">
+            <span style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;font-weight:600">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>Voice Settings
+            </span>
+            <svg id="vpchev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="vpb" id="vpbody" style="display:none">
+            <div class="vtr"><label class="sw"><input type="checkbox" id="vt-g" checked onchange="saveVS()"/><span class="sl"></span></label><span>Voice Guidance</span></div>
+            <div class="vtr"><label class="sw"><input type="checkbox" id="vt-m" checked onchange="saveVS()"/><span class="sl"></span></label><span>Microphone Input</span></div>
+            <div style="display:flex;align-items:center;gap:.5rem">
+              <label style="font-size:.85rem;font-weight:600;white-space:nowrap">Language:</label>
+              <select class="fsel" id="v-lang" onchange="saveVS()" style="width:auto">
+                <option value="en-GB">English (UK)</option><option value="en-US">English (US)</option>
+                <option value="fr-FR">French</option><option value="de-DE">German</option>
+                <option value="es-ES">Spanish</option><option value="nl-NL">Dutch</option>
+                <option value="it-IT">Italian</option><option value="pt-PT">Portuguese</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:center;gap:.5rem">
+              <label style="font-size:.85rem;font-weight:600;white-space:nowrap">Speed:</label>
+              <div class="togbtn">
+                <button id="sp-sl" onclick="setSpd('slow')">Slow</button>
+                <button id="sp-no" class="act" onclick="setSpd('normal')">Normal</button>
+                <button id="sp-fa" onclick="setSpd('fast')">Fast</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wpbar" id="wpbar"></div>
+        <div id="stepcont"></div>
+        <div style="margin-top:1rem">
+          <div style="font-size:.8rem;font-weight:600;color:var(--tm);margin-bottom:.375rem">Conversation Log</div>
+          <div class="clog" id="clog"></div>
+        </div>
+      </div>
+
+      <!-- UPLOAD -->
+      <div id="umode" style="display:none">
+        <div class="dzone" id="dzone">
+          <input type="file" id="finput" accept=".csv,.xlsx,.xls,.pdf,.qbo,.ofx,.json,.xml,.txt" onchange="onFileSel(this)"/>
+          <div style="color:var(--tl);margin-bottom:.75rem"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg></div>
+          <div class="dztit">Drag your accounting file here, or click to browse</div>
+          <div class="dzsub">Accepted: CSV, XLSX, PDF, QBO, OFX, JSON, XML, TXT</div>
+        </div>
+        <div id="faccarea"></div>
+        <div class="card" style="margin-top:1.5rem">
+          <div style="font-weight:700;margin-bottom:1rem">Report Options</div>
+          <div id="u-scopes"></div><div class="divr"></div>
+          <div id="u-rtypes"></div><div class="divr"></div>
+          <div class="fg">
+            <label class="fl">Preferred Output Format</label>
+            <input class="fi" type="text" id="u-fmt" placeholder="e.g. pdf, docx, xlsx, csv, json"/>
+            <span id="u-fnote" style="font-size:.75rem;color:var(--tm)"></span>
+          </div>
+          <div style="margin-top:1rem"><button class="btn btnP btnLg" onclick="genFromUpload()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Analyse and Generate
+          </button></div>
+        </div>
+      </div>
+
+      <div id="repout" style="display:none;margin-top:1.5rem"></div>
+    </div>
+
+    <!-- SESSIONS -->
+    <div id="dt-sess" class="pc" style="display:none">
+      <div class="stit">My Sessions</div>
+      <div class="sbar2"><input type="text" id="ssearch" placeholder="Search sessions..." oninput="renderSess()"/></div>
+      <div id="sesstbl"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="dt-set" class="pc" style="display:none">
+      <div class="stsec"><div class="stst">Account Details</div><div class="card" style="display:flex;flex-direction:column;gap:1rem" id="setform"></div></div>
+      <div class="stsec">
+        <div class="stst">Access Code</div>
+        <div class="card" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+          <div class="codeval" id="setcode" style="font-size:1.5rem"></div>
+          <button class="btn btnS btnSm" onclick="togCodeVis()" id="codevisbtn">Show Code</button>
+          <button class="btn btnS btnSm" onclick="copySetCode()">Copy</button>
+        </div>
+        <div id="setmsg" style="margin-top:.5rem"></div>
+      </div>
+      <div class="stsec">
+        <div class="stst">Danger Zone</div>
+        <div class="card cardR" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+          <div><div style="font-weight:600;color:var(--r)">Delete My Account</div><div style="font-size:.875rem;color:var(--tm)">This will permanently remove your account and all session data.</div></div>
+          <button class="btn btnD btnSm" onclick="delAcc()">Delete Account</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminv" style="display:none">
+  <div class="adh"><h1>Finance to Impact | Admin Panel</h1><button class="btn btnS btnSm" onclick="doSignOut()">Sign Out</button></div>
+  <div class="adc"><div id="adminner"></div></div>
+</div>
+
+<footer id="footer">Finance to Impact | Helping organisations understand their climate impact</footer>
+
+<script>
+// === CONFIG ===
+const API_KEY    = 'YOUR_API_KEY_HERE'; // <-- INSERT YOUR ANTHROPIC API KEY
+const ADMIN_EM   = 'admin@financetoimpa.ct';
+
+// === STORAGE ===
+const gU  = ()=>JSON.parse(localStorage.getItem('fit_u')||'[]');
+const gS  = ()=>JSON.parse(localStorage.getItem('fit_s')||'[]');
+const sU  = v=>localStorage.setItem('fit_u',JSON.stringify(v));
+const sS  = v=>localStorage.setItem('fit_s',JSON.stringify(v));
+const gVC = ()=>JSON.parse(localStorage.getItem('fit_vc')||'{"guidance":true,"mic":true,"lang":"en-GB","speed":"normal","muted":false}');
+const sVC = v=>localStorage.setItem('fit_vc',JSON.stringify(v));
+
+let CU=null, mode='g', step=0;
+let WD={}, rows=[{id:1,cat:'',desc:'',amt:'',cur:'GBP'}];
+let scopes=new Set([1,2,3]);
+let selRep=['GHG Inventory Report','CSRD Compliance Report','ESG Summary Report','Investment-Grade Carbon Report'];
+let repOrder=[...selRep];
+let ofmt='pdf', codeVis=false, muted=false, spd=0.95, lang='en-GB';
+let fDragId=null, sDragId=null, rDragSrc=null, sessOrd=null;
+
+// === CODE GEN ===
+function genCode(){
+  return Math.floor(1000+Math.random()*9000)+String.fromCharCode(65+Math.floor(Math.random()*26))+String.fromCharCode(65+Math.floor(Math.random()*26));
+}
+
+// === AUTH TABS ===
+function showTab2(t){
+  ['si','reg','forgot'].forEach(x=>document.getElementById('t-'+x).style.display=x===t?'':'none');
+  const bs=document.querySelectorAll('#atabs button');
+  bs[0].classList.toggle('act',t==='si'); bs[1].classList.toggle('act',t==='reg');
+}
+function showForgot(){
+  ['t-si','t-reg'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('t-forgot').style.display='';
+  document.querySelectorAll('#atabs button').forEach(b=>b.classList.remove('act'));
+}
+
+function showM(id,msg,type='e'){
+  const el=document.getElementById(id); if(!el)return;
+  const bg={e:'var(--rl)',s:'var(--gl)',a:'var(--al)'};
+  const br={e:'var(--rb)',s:'var(--gb)',a:'var(--ab)'};
+  const tc={e:'var(--r)',s:'var(--g)',a:'var(--a)'};
+  el.innerHTML=msg?`<div class="msg" style="background:${bg[type]};border:1.5px solid ${br[type]};color:${tc[type]}">${msg}</div>`:'';
+}
+
+function doRegister(){
+  const fn=document.getElementById('r-fn').value.trim();
+  const ln=document.getElementById('r-ln').value.trim();
+  const em=document.getElementById('r-em').value.trim().toLowerCase();
+  const co=document.getElementById('r-co').value.trim();
+  const ind=document.getElementById('r-ind').value;
+  const tc=document.getElementById('r-tc').checked;
+  if(!fn||!ln||!em||!co||!ind) return showM('regmsg','Please complete all fields.');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return showM('regmsg','Please enter a valid email address.');
+  if(!tc) return showM('regmsg','Please agree to the Terms of Use.');
+  const us=gU();
+  if(us.find(u=>u.em===em)) return showM('regmsg','An account with this email already exists.');
+  const code=genCode();
+  us.push({fn,ln,em,co,ind,code,cr:new Date().toISOString()});
+  sU(us);
+  document.getElementById('newcode').textContent=code;
+  document.getElementById('regform').style.display='none';
+  document.getElementById('regsuc').style.display='';
+}
+function afterReg(){
+  const em=document.getElementById('r-em').value.trim().toLowerCase();
+  const code=document.getElementById('newcode').textContent;
+  showTab2('si');
+  document.getElementById('si-em').value=em;
+  document.getElementById('si-co').value=code;
+  document.getElementById('regform').style.display='';
+  document.getElementById('regsuc').style.display='none';
+  ['r-fn','r-ln','r-em','r-co'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('r-ind').value='';
+  document.getElementById('r-tc').checked=false;
+}
+function copyCode(){navigator.clipboard.writeText(document.getElementById('newcode').textContent).then(()=>showM('regmsg','Code copied!','s'));}
+
+function doSignIn(){
+  const em=document.getElementById('si-em').value.trim().toLowerCase();
+  const code=document.getElementById('si-co').value.trim().toUpperCase();
+  if(!em||!code) return showM('simsg','Please enter your email and access code.');
+  const u=gU().find(u=>u.em===em&&u.code===code);
+  if(!u) return showM('simsg','Email or access code not recognised. Please try again.');
+  loginU(u);
+}
+function loginU(u){
+  CU=u;
+  if(u.em===ADMIN_EM){showAdmin();return;}
+  document.getElementById('authv').style.display='none';
+  document.getElementById('dashv').style.display='flex';
+  document.getElementById('adminv').style.display='none';
+  fillSbar(); showDTab('home');
+  if(window.innerWidth<=768) document.getElementById('mmbtn').style.display='flex';
+  loadVC(); renderMute();
+}
+function doSignOut(){
+  CU=null; window.speechSynthesis&&window.speechSynthesis.cancel();
+  document.getElementById('authv').style.display='flex';
+  document.getElementById('dashv').style.display='none';
+  document.getElementById('adminv').style.display='none';
+  showTab2('si');
+  document.getElementById('si-em').value='';
+  document.getElementById('si-co').value='';
+  showM('simsg','');
+}
+function doForgot(){
+  const em=document.getElementById('f-em').value.trim().toLowerCase();
+  const co=document.getElementById('f-co').value.trim().toLowerCase();
+  const u=gU().find(x=>x.em===em&&x.co.toLowerCase()===co);
+  if(!u){showM('fgtmsg','We could not find a matching account. Please check your details.');document.getElementById('fgtres').innerHTML='';}
+  else{showM('fgtmsg','Your access code has been found. Please make a note of it.','s');document.getElementById('fgtres').innerHTML=`<div class="codebox" style="margin-top:.75rem"><div style="font-size:.8rem;font-weight:600;color:var(--tm)">YOUR ACCESS CODE</div><div class="codeval">${u.code}</div></div>`;}
+}
+
+// === DASHBOARD NAV ===
+function showDTab(t){
+  ['home','report','sess','set'].forEach(x=>{
+    document.getElementById('dt-'+x).style.display=x===t?'':'none';
+    const n=document.getElementById('ni-'+x); if(n) n.classList.toggle('act',x===t);
+  });
+  const titles={home:'Home',report:'New Report',sess:'My Sessions',set:'Settings'};
+  document.getElementById('mhtitle').textContent=titles[t]||t;
+  if(t==='home') renderHome();
+  if(t==='sess') renderSess();
+  if(t==='set')  renderSet();
+  if(t==='report'&&step===0) startWiz();
+  if(window.innerWidth<=768) document.getElementById('sbar').classList.remove('open');
+}
+function toggleSbar(){document.getElementById('sbar').classList.toggle('open');}
+function fillSbar(){
+  document.getElementById('sbn').textContent=CU.fn+' '+CU.ln;
+  document.getElementById('sbco').textContent=CU.co;
+}
+
+// === HOME ===
+function renderHome(){
+  const h=new Date().getHours();
+  const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('hgreet').textContent=`${g}, ${CU.fn}.`;
+  document.getElementById('hbadge').innerHTML=`<span class="badge bG">${CU.co}</span><span class="badge bGr">${CU.ind}</span>`;
+  const ss=gS().filter(s=>s.uem===CU.em);
+  document.getElementById('st-s').textContent=ss.length;
+  document.getElementById('st-r').textContent=ss.filter(s=>s.st==='Complete').length;
+  document.getElementById('st-l').textContent=ss.length?new Date(ss[ss.length-1].dt).toLocaleDateString():'--';
+  const rec=ss.slice(-3).reverse();
+  document.getElementById('hrsess').innerHTML=rec.length?rec.map(s=>`<div class="srow"><div><div style="font-weight:600;font-size:.875rem">${s.co||CU.co}</div><div style="font-size:.75rem;color:var(--tl)">${new Date(s.dt).toLocaleDateString()}</div></div><div style="display:flex;align-items:center;gap:.5rem"><span class="badge ${s.st==='Complete'?'bG':'bGr'}">${s.st}</span><button class="btn btnS btnSm" onclick="reopenS('${s.id}')">View</button></div></div>`).join(''):'<div style="font-size:.875rem;color:var(--tm)">No sessions yet. Start your first report above.</div>';
+}
+
+// === WIZARD ===
+const STEPS=[{n:1,l:'Company Profile'},{n:2,l:'Operations'},{n:3,l:'Energy'},{n:4,l:'Financials'},{n:5,l:'Report Options'},{n:6,l:'Review'}];
+const MSGS=[
+  "Welcome! I am thrilled to be working with you today. Before we build your climate impact reports, I need to understand your organisation a little better. Let us start with the basics.",
+  "Excellent. Now let us talk about what your company actually does day to day. This helps me map your financial flows to the right emission categories.",
+  "Now we move into energy. Even without energy bills, I can estimate from your financials. But if you have data, let us capture it.",
+  "This is where the magic begins. Share your financial data and I will translate it into emissions figures using recognised conversion factors.",
+  "Almost there! Now tell me which emissions scopes you want reported on, and what types of report you need.",
+  "Brilliant. Here is a summary of everything I have collected. Please review it and when you are ready, I will generate your reports."
+];
+const FCATS=['','Salary/Wages','Office Supplies','IT Equipment','Travel - Air','Travel - Rail','Travel - Road','Freight/Logistics','Utilities','Raw Materials','Outsourced Services','Waste Disposal','Marketing/Print','Capital Equipment','Other'];
+
+function startWiz(){
+  step=1; WD={co:CU.co,ind:CU.ind};
+  rows=[{id:Date.now(),cat:'',desc:'',amt:'',cur:'GBP'}];
+  scopes=new Set([1,2,3]);
+  selRep=['GHG Inventory Report','CSRD Compliance Report','ESG Summary Report','Investment-Grade Carbon Report'];
+  repOrder=[...selRep]; ofmt='pdf';
+  document.getElementById('clog').innerHTML='';
+  document.getElementById('repout').style.display='none';
+  document.getElementById('repout').innerHTML='';
+  renderProg(); renderStep();
+  addLog('Finance to Impact',MSGS[0]); speak(MSGS[0]);
+}
+
+function renderProg(){
+  document.getElementById('wpbar').innerHTML=STEPS.map((s,i)=>{
+    const c=s.n<step?'done':s.n===step?'act':'';
+    return (i>0?`<div class="wpsp ${s.n<=step?'done':''}"></div>`:'')+
+      `<div class="wps ${c}"><div class="wpn">${s.n<step?'&#10003;':s.n}</div>${s.l}</div>`;
+  }).join('');
+}
+
+function mb(id){
+  const vc=gVC(); const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!vc.mic||!SR) return '';
+  return `<button class="micb" id="mb-${id}" onclick="startMic('${id}')" title="Speak"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></button>`;
+}
+function rb(i){return `<button class="repb" onclick="speak(MSGS[${i}])" title="Replay"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg></button>`;}
+function wnav(s){return `<div class="wnav"><button class="btn btnG" onclick="goBack()" ${s===1?'style="visibility:hidden"':''}>Back</button><button class="btn btnP" onclick="goNext(${s})">${s===5?'Review':'Continue'}<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button></div>`;}
+function chkHTML(on){return on?`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`:'';}
+
+function renderStep(){
+  const el=document.getElementById('stepcont'); const d=WD;
+  if(step===1) el.innerHTML=`<div class="scard2"><div class="sch"><div class="stitle">Step 1: Company Profile</div>${rb(0)}</div><div class="smsg">${MSGS[0]}</div><div class="sfields"><div class="trow"><div class="fg"><label class="fl">Company Name</label><div class="mwrap"><input class="fi" id="s1c" value="${d.co||''}" placeholder="Acme Ltd"/>${mb('s1c')}</div></div><div class="fg"><label class="fl">Industry</label><select class="fsel" id="s1i">${['Manufacturing','Energy','Finance and Investment','Technology','Retail','Transport and Logistics','Healthcare','Agriculture','Construction','Professional Services','Other'].map(o=>`<option${(d.ind||''===o)?' selected':''}>${o}</option>`).join('')}</select></div></div><div class="trow"><div class="fg"><label class="fl">Country of Operation</label><div class="mwrap"><input class="fi" id="s1k" value="${d.co||''}" placeholder="United Kingdom"/>${mb('s1k')}</div></div><div class="fg"><label class="fl">Reporting Year</label><input class="fi" type="number" id="s1y" value="${d.yr||new Date().getFullYear()-1}" min="2000" max="2099"/></div></div><div class="fg"><label class="fl">Number of Employees</label><select class="fsel" id="s1e">${['1-10','11-50','51-200','201-1000','1001-5000','5000+'].map(o=>`<option${d.em===o?' selected':''}>${o}</option>`).join('')}</select></div></div><div id="ot1"></div>${wnav(1)}</div>`;
+
+  if(step===2) el.innerHTML=`<div class="scard2"><div class="sch"><div class="stitle">Step 2: Operations Overview</div>${rb(1)}</div><div class="smsg">${MSGS[1]}</div><div class="sfields"><div class="fg"><label class="fl">Primary Business Activity</label><textarea class="fta" id="s2a" placeholder="Describe what your organisation does...">${d.act||''}</textarea></div><div class="trow"><div class="fg"><label class="fl">Do you own or lease your premises?</label><div class="togbtn"><button id="s2-ow" class="${(!d.prem||d.prem==='own')?'act':''}" onclick="tgl('s2-ow','s2-le')">Own</button><button id="s2-le" class="${d.prem==='lease'?'act':''}" onclick="tgl('s2-le','s2-ow')">Lease</button></div></div><div class="fg"><label class="fl">Do you operate a vehicle fleet?</label><div class="togbtn"><button id="s2-fy" class="${d.flt==='yes'?'act':''}" onclick="tgl('s2-fy','s2-fn')">Yes</button><button id="s2-fn" class="${(!d.flt||d.flt==='no')?'act':''}" onclick="tgl('s2-fn','s2-fy')">No</button></div></div></div><div class="trow"><div class="fg"><label class="fl">Do you manufacture physical goods?</label><div class="togbtn"><button id="s2-my" class="${d.mfg==='yes'?'act':''}" onclick="tgl('s2-my','s2-mn')">Yes</button><button id="s2-mn" class="${(!d.mfg||d.mfg==='no')?'act':''}" onclick="tgl('s2-mn','s2-my')">No</button></div></div><div class="fg"><label class="fl">Do you purchase from suppliers?</label><div class="togbtn"><button id="s2-sy" class="${(!d.sup||d.sup==='yes')?'act':''}" onclick="tgl('s2-sy','s2-sn')">Yes</button><button id="s2-sn" class="${d.sup==='no'?'act':''}" onclick="tgl('s2-sn','s2-sy')">No</button></div></div></div></div><div id="ot2"></div>${wnav(2)}</div>`;
+
+  if(step===3) el.innerHTML=`<div class="scard2"><div class="sch"><div class="stitle">Step 3: Energy and Utilities</div>${rb(2)}</div><div class="smsg">${MSGS[2]}</div><div class="sfields"><div class="trow"><div class="fg"><label class="fl">Annual Electricity Spend</label><div style="display:flex;gap:.5rem"><div class="mwrap" style="flex:1"><input class="fi" type="number" id="s3e" value="${d.elec||''}" placeholder="0"/>${mb('s3e')}</div><select class="fsel" id="s3ec" style="width:80px"><option${d.ec==='GBP'||!d.ec?' selected':''}>GBP</option><option${d.ec==='EUR'?' selected':''}>EUR</option><option${d.ec==='USD'?' selected':''}>USD</option></select></div></div><div class="fg"><label class="fl">Electricity Source</label><select class="fsel" id="s3es"><option value="grid"${d.es==='grid'||!d.es?' selected':''}>National Grid (mixed)</option><option value="renewable"${d.es==='renewable'?' selected':''}>100% Renewable</option><option value="mixed"${d.es==='mixed'?' selected':''}>Partially Renewable</option></select></div></div><div class="trow"><div class="fg"><label class="fl">Annual Gas and Heating Spend</label><div class="mwrap"><input class="fi" type="number" id="s3g" value="${d.gas||''}" placeholder="0"/>${mb('s3g')}</div></div><div class="fg"><label class="fl">Annual Fuel Spend</label><div class="mwrap"><input class="fi" type="number" id="s3f" value="${d.fuel||''}" placeholder="0"/>${mb('s3f')}</div></div></div></div>${wnav(3)}</div>`;
+
+  if(step===4){el.innerHTML=`<div class="scard2"><div class="sch"><div class="stitle">Step 4: Financial Data</div>${rb(3)}</div><div class="smsg">${MSGS[3]}</div><div style="overflow-x:auto"><table class="ftbl"><thead><tr><th style="width:24px"></th><th>Category</th><th>Description</th><th>Amount</th><th>Currency</th><th style="width:32px"></th></tr></thead><tbody id="ftbody"></tbody></table></div><button class="btn btnS btnSm" onclick="addRow()" style="margin-top:.75rem"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Row</button>${wnav(4)}</div>`;renderRows();}
+
+  if(step===5){el.innerHTML=`<div class="scard2"><div class="sch"><div class="stitle">Step 5: Report Options</div>${rb(4)}</div><div class="smsg">${MSGS[4]}</div><div class="sfields"><div><label class="fl" style="margin-bottom:.5rem;display:block">Emissions Scopes</label><div class="scgrid">${[{n:1,t:'Scope 1',d:'Direct emissions from combustion, company vehicles, and on-site processes.'},{n:2,t:'Scope 2',d:'Indirect emissions from purchased electricity, heat, and cooling.'},{n:3,t:'Scope 3',d:'All other indirect emissions: supply chain, business travel, waste, and purchased goods.'}].map(s=>`<div class="sccard${scopes.has(s.n)?' sel':''}" id="sc${s.n}" onclick="togScope(${s.n})"><div class="scchk">${chkHTML(scopes.has(s.n))}</div><div><div style="font-size:.7rem;font-weight:700;color:var(--g)">${s.t}</div><div style="font-size:.9rem;font-weight:600">${s.t}: Emissions</div><div style="font-size:.8rem;color:var(--tm)">${s.d}</div></div></div>`).join('')}</div></div><div><label class="fl" style="margin-bottom:.5rem;display:block">Report Types (drag to reorder)</label><div class="rlist" id="rtlist"></div></div><div class="fg"><label class="fl">Preferred Output Format</label><div class="mwrap"><input class="fi" id="s5f" value="${ofmt}" placeholder="pdf, docx, xlsx, csv, json" oninput="valFmt(this,'s5fh')"/>${mb('s5f')}</div><span id="s5fh" style="font-size:.75rem;color:var(--tm)"></span></div></div>${wnav(5)}</div>`;renderRList();}
+
+  if(step===6){const d=WD;el.innerHTML=`<div class="scard2"><div class="sch"><div class="stitle">Step 6: Review and Confirm</div>${rb(5)}</div><div class="smsg">${MSGS[5]}</div><div class="cardG" style="margin-bottom:1rem"><div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem 1.5rem;font-size:.875rem"><div><strong style="color:var(--g)">Company:</strong> ${d.co||'--'}</div><div><strong style="color:var(--g)">Industry:</strong> ${d.ind||'--'}</div><div><strong style="color:var(--g)">Country:</strong> ${d.ktr||'--'}</div><div><strong style="color:var(--g)">Year:</strong> ${d.yr||'--'}</div><div><strong style="color:var(--g)">Employees:</strong> ${d.emp||'--'}</div><div><strong style="color:var(--g)">Scopes:</strong> ${[...scopes].map(n=>'Scope '+n).join(', ')}</div><div style="grid-column:1/-1"><strong style="color:var(--g)">Reports:</strong> ${selRep.join(', ')||'None'}</div><div><strong style="color:var(--g)">Format:</strong> ${ofmt}</div><div><strong style="color:var(--g)">Financial Items:</strong> ${rows.filter(r=>r.amt).length}</div></div></div><div style="display:flex;justify-content:space-between;align-items:center;padding-top:1rem;border-top:1.5px solid var(--bd)"><button class="btn btnG" onclick="goBack()">Back</button><button class="btn btnP btnLg" onclick="doGenerate()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Generate My Reports</button></div></div>`;}
+}
+
+function tgl(a,b){document.getElementById(a).classList.add('act');document.getElementById(b).classList.remove('act');}
+
+function goNext(s){
+  if(!collectStep(s)) return;
+  if(step<6){step++;renderProg();renderStep();addLog('Finance to Impact',MSGS[step-1]);speak(MSGS[step-1]);}
+}
+function goBack(){if(step>1){step--;renderProg();renderStep();if(step===4)renderRows();if(step===5)renderRList();}}
+
+function collectStep(s){
+  if(s===1){
+    const c=document.getElementById('s1c').value.trim();
+    const k=document.getElementById('s1k').value.trim();
+    if(!c||!k){alert('Please fill in Company Name and Country.');return false;}
+    WD.co=c; WD.ind=document.getElementById('s1i').value; WD.ktr=k;
+    WD.yr=document.getElementById('s1y').value; WD.emp=document.getElementById('s1e').value;
+    addLog('You',`${c}, ${k}, ${WD.yr}`);
+  }
+  if(s===2){
+    const act=document.getElementById('s2a').value.trim();
+    if(isOT(act)){document.getElementById('ot2').innerHTML=otHTML();speak('Thank you for that! I am here specifically to help you build your climate impact reports today. Let us keep our focus there. Shall we continue?');return false;}
+    WD.act=act; WD.prem=document.getElementById('s2-ow').classList.contains('act')?'own':'lease';
+    WD.flt=document.getElementById('s2-fy').classList.contains('act')?'yes':'no';
+    WD.mfg=document.getElementById('s2-my').classList.contains('act')?'yes':'no';
+    WD.sup=document.getElementById('s2-sy').classList.contains('act')?'yes':'no';
+    addLog('You',`Activity entered. Fleet: ${WD.flt}, Manufacturing: ${WD.mfg}`);
+  }
+  if(s===3){
+    WD.elec=document.getElementById('s3e').value; WD.ec=document.getElementById('s3ec').value;
+    WD.es=document.getElementById('s3es').value; WD.gas=document.getElementById('s3g').value;
+    WD.fuel=document.getElementById('s3f').value;
+    addLog('You',`Electricity: ${WD.elec||0} ${WD.ec}, Gas: ${WD.gas||0}, Fuel: ${WD.fuel||0}`);
+  }
+  if(s===4){collectRows();addLog('You',`${rows.filter(r=>r.amt).length} financial line items entered`);}
+  if(s===5){
+    ofmt=document.getElementById('s5f').value.trim().toLowerCase()||'pdf';
+    addLog('You',`Scopes: ${[...scopes].join(',')}, Reports: ${selRep.length}, Format: ${ofmt}`);
+  }
+  return true;
+}
+
+const OTW=['weather','sport','football','cricket','recipe','joke','movie','film','song','music','game','politics','celebrity','gossip','holiday'];
+function isOT(t){return OTW.some(w=>t.toLowerCase().includes(w));}
+function otHTML(){return `<div class="ofa"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Thank you for that! I am here specifically to help you build your climate impact reports today. Let us keep our focus there so we can get you the best possible output. Shall we continue?</span></div>`;}
+
+// === FINANCIAL ROWS ===
+function renderRows(){
+  const tb=document.getElementById('ftbody'); if(!tb)return;
+  tb.innerHTML=rows.map(r=>`<tr draggable="true" id="fr-${r.id}" ondragstart="fds('${r.id}')" ondragover="fdo(event,'${r.id}')" ondrop="fdp(event,'${r.id}')" ondragleave="event.currentTarget.classList.remove('dov')"><td><span class="dh">&#8801;</span></td><td><select onchange="updR(${r.id},'cat',this.value)">${FCATS.map(c=>`<option${r.cat===c?' selected':''}>${c}</option>`).join('')}</select></td><td><input type="text" value="${r.desc||''}" placeholder="Description" onchange="updR(${r.id},'desc',this.value)"/></td><td><input type="number" value="${r.amt||''}" placeholder="0" onchange="updR(${r.id},'amt',this.value)" style="width:100px"/></td><td><select onchange="updR(${r.id},'cur',this.value)" style="width:70px">${['GBP','EUR','USD','Other'].map(c=>`<option${r.cur===c?' selected':''}>${c}</option>`).join('')}</select></td><td><button onclick="delR(${r.id})" style="background:none;border:none;cursor:pointer;color:var(--r);padding:.2rem" title="Remove"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td></tr>`).join('');
+}
+function addRow(){rows.push({id:Date.now(),cat:'',desc:'',amt:'',cur:'GBP'});renderRows();}
+function delR(id){if(rows.length>1){rows=rows.filter(r=>r.id!==id);renderRows();}}
+function updR(id,k,v){const r=rows.find(r=>r.id===id);if(r)r[k]=v;}
+function collectRows(){
+  rows=rows.map(r=>{
+    const tr=document.getElementById('fr-'+r.id); if(!tr)return r;
+    const s=tr.querySelectorAll('select,input');
+    return{...r,cat:s[0]?.value||r.cat,desc:s[1]?.value||r.desc,amt:s[2]?.value||r.amt,cur:s[3]?.value||r.cur};
+  });
+}
+let fDrag=null;
+function fds(id){fDrag=id;}
+function fdo(e,id){e.preventDefault();document.getElementById('fr-'+id)?.classList.add('dov');}
+function fdp(e,id){
+  e.preventDefault();document.getElementById('fr-'+id)?.classList.remove('dov');
+  if(fDrag===id)return;
+  const fi=rows.findIndex(r=>String(r.id)===fDrag),ti=rows.findIndex(r=>String(r.id)===id);
+  if(fi<0||ti<0)return;
+  const[item]=rows.splice(fi,1);rows.splice(ti,0,item);renderRows();
+}
+
+// === SCOPE + REPORT TYPE ===
+function togScope(n){
+  if(scopes.has(n))scopes.delete(n);else scopes.add(n);
+  const c=document.getElementById('sc'+n); if(!c)return;
+  c.classList.toggle('sel',scopes.has(n));
+  c.querySelector('.scchk').innerHTML=chkHTML(scopes.has(n));
+}
+
+function renderRList(){
+  const el=document.getElementById('rtlist'); if(!el)return;
+  el.innerHTML=repOrder.map(rt=>`<div class="rcard${selRep.includes(rt)?' sel':''}" id="rc-${btoa(rt).replace(/=/g,'')}" draggable="true" onclick="togRT('${rt.replace(/'/g,"\\'")}') " ondragstart="rtDS('${rt.replace(/'/g,"\\'")}') " ondragover="event.preventDefault();this.classList.add('dov')" ondrop="rtDP(event,'${rt.replace(/'/g,"\\'")}') " ondragleave="this.classList.remove('dov')"><span class="dh">&#8801;</span><div class="scchk">${chkHTML(selRep.includes(rt))}</div><span style="font-size:.875rem;font-weight:500">${rt}</span></div>`).join('');
+}
+function togRT(rt){const i=selRep.indexOf(rt);if(i>-1)selRep.splice(i,1);else selRep.push(rt);renderRList();}
+let rtDS_=null;
+function rtDS(rt){rtDS_=rt;}
+function rtDP(e,rt){
+  e.preventDefault();e.currentTarget.classList.remove('dov');if(rtDS_===rt)return;
+  const fi=repOrder.indexOf(rtDS_),ti=repOrder.indexOf(rt);
+  if(fi<0)return;const[i]=repOrder.splice(fi,1);repOrder.splice(repOrder.indexOf(rt),0,i);renderRList();
+}
+function valFmt(el,hid){
+  const v=el.value.trim().toLowerCase();const kn=['pdf','docx','xlsx','csv','json','txt','xml'];
+  const h=document.getElementById(hid);if(h)h.textContent=v&&!kn.includes(v)?'Note: This format is not a standard type. We will format as best we can.':'';
+}
+
+// === CONV LOG ===
+function addLog(who,txt){
+  const el=document.getElementById('clog');if(!el)return;
+  const cls=who==='Finance to Impact'?'lfit':'lyou';
+  el.innerHTML+=`<div><span class="${cls}">${who}:</span> <span>${txt}</span></div>`;
+  el.scrollTop=el.scrollHeight;
+}
+
+// === VOICE ===
+let activeRec=null;
+function speak(txt){
+  const vc=gVC(); if(vc.muted||!vc.guidance)return;
+  if(!('speechSynthesis' in window))return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(txt);
+  u.rate=spd;u.pitch=1;u.volume=1;u.lang=lang;
+  const vs=window.speechSynthesis.getVoices();
+  const pv=vs.find(v=>v.name.includes('Google UK English Female'))||vs.find(v=>v.lang===lang)||vs.find(v=>v.lang.startsWith('en'));
+  if(pv)u.voice=pv;
+  window.speechSynthesis.speak(u);
+}
+function startMic(fid){
+  const vc=gVC();if(!vc.mic)return;
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return;
+  if(activeRec){activeRec.stop();activeRec=null;return;}
+  const rec=new SR(); rec.continuous=false;rec.interimResults=true;rec.lang=lang;activeRec=rec;
+  const btn=document.getElementById('mb-'+fid);if(btn)btn.classList.add('on');
+  rec.onresult=e=>{const t=Array.from(e.results).map(r=>r[0].transcript).join('');const f=document.getElementById(fid);if(f){f.value=t;f.dispatchEvent(new Event('change'));}};
+  rec.onend=()=>{if(btn)btn.classList.remove('on');activeRec=null;};
+  rec.onerror=()=>{if(btn)btn.classList.remove('on');activeRec=null;};
+  rec.start();
+}
+function loadVC(){
+  const vc=gVC(); muted=vc.muted||false; lang=vc.lang||'en-GB';
+  const sp={slow:.75,normal:.95,fast:1.2};spd=sp[vc.speed||'normal'];
+  try{document.getElementById('vt-g').checked=vc.guidance!==false;document.getElementById('vt-m').checked=vc.mic!==false;document.getElementById('v-lang').value=vc.lang||'en-GB';}catch(e){}
+}
+function saveVS(){
+  const vc=gVC();vc.guidance=document.getElementById('vt-g')?.checked!==false;vc.mic=document.getElementById('vt-m')?.checked!==false;vc.lang=document.getElementById('v-lang')?.value||'en-GB';lang=vc.lang;sVC(vc);
+}
+function setSpd(s){
+  ['sl','no','fa'].forEach(x=>document.getElementById('sp-'+x)?.classList.remove('act'));
+  document.getElementById('sp-'+s.replace('normal','no').replace('slow','sl').replace('fast','fa'))?.classList.add('act');
+  const sp={slow:.75,normal:.95,fast:1.2};spd=sp[s];const vc=gVC();vc.speed=s;sVC(vc);
+}
+function togMute(){const vc=gVC();vc.muted=!vc.muted;muted=vc.muted;sVC(vc);if(muted)window.speechSynthesis?.cancel();renderMute();}
+function renderMute(){
+  const el=document.getElementById('mutearea');if(!el)return;
+  el.innerHTML=`<button class="muteb${muted?' muted':''}" onclick="togMute()" title="${muted?'Unmute':'Mute'} voice">${muted?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg> Voice Off':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/></svg> Voice On'}</button>`;
+}
+function toggleVP(){const b=document.getElementById('vpbody'),c=document.getElementById('vpchev');const o=b.style.display!=='none';b.style.display=o?'none':'flex';c.style.transform=o?'':'rotate(180deg)';}
+
+// === UPLOAD MODE ===
+function setMode(m){
+  mode=m;
+  document.getElementById('gmode').style.display=m==='g'?'':'none';
+  document.getElementById('umode').style.display=m==='u'?'':'none';
+  document.getElementById('mb-g').style.background=m==='g'?'var(--g)':'var(--bg)';
+  document.getElementById('mb-g').style.color=m==='g'?'#fff':'var(--tm)';
+  document.getElementById('mb-u').style.background=m==='u'?'var(--g)':'var(--bg)';
+  document.getElementById('mb-u').style.color=m==='u'?'#fff':'var(--tm)';
+  if(m==='u')renderUploadOpts();
+}
+function renderUploadOpts(){
+  document.getElementById('u-scopes').innerHTML=`<label class="fl" style="margin-bottom:.5rem;display:block">Emissions Scopes</label><div class="scgrid">${[{n:1,t:'Scope 1',d:'Direct emissions'},{n:2,t:'Scope 2',d:'Purchased energy'},{n:3,t:'Scope 3',d:'Value chain emissions'}].map(s=>`<div class="sccard${scopes.has(s.n)?' sel':''}" onclick="togScopeU(${s.n})"><div class="scchk">${chkHTML(scopes.has(s.n))}</div><div><div style="font-size:.7rem;font-weight:700;color:var(--g)">${s.t}</div><div style="font-size:.8rem;color:var(--tm)">${s.d}</div></div></div>`).join('')}</div>`;
+  document.getElementById('u-rtypes').innerHTML=`<label class="fl" style="margin-bottom:.5rem;display:block">Report Types</label><div class="rlist">${['GHG Inventory Report','CSRD Compliance Report','ESG Summary Report','Investment-Grade Carbon Report'].map(rt=>`<div class="rcard${selRep.includes(rt)?' sel':''}" onclick="togRT('${rt}')"><div class="scchk">${chkHTML(selRep.includes(rt))}</div><span style="font-size:.875rem;font-weight:500">${rt}</span></div>`).join('')}</div>`;
+}
+function togScopeU(n){if(scopes.has(n))scopes.delete(n);else scopes.add(n);renderUploadOpts();}
+const dz=document.getElementById('dzone');
+if(dz){dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('da');});dz.addEventListener('dragleave',()=>dz.classList.remove('da'));dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('da');const f=e.dataTransfer.files[0];if(f)showFile(f);});}
+let uploadFile=null;
+function onFileSel(inp){if(inp.files[0])showFile(inp.files[0]);}
+function showFile(f){uploadFile=f;const a=document.getElementById('faccarea');a.style.display='';a.innerHTML=`<div class="facc"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><div><div style="font-weight:600;font-size:.875rem">${f.name}</div><div style="font-size:.75rem;color:var(--tl)">${(f.size/1024).toFixed(1)} KB - File ready</div></div></div>`;}
+function genFromUpload(){
+  ofmt=document.getElementById('u-fmt')?.value?.trim()?.toLowerCase()||'pdf';
+  WD={co:CU.co,ind:CU.ind,ktr:'Not specified',yr:new Date().getFullYear()-1,emp:'Not specified',act:CU.ind+' company',prem:'Not specified',flt:'Not specified',mfg:'Not specified',sup:'Not specified',elec:0,gas:0,fuel:0,ec:'GBP',es:'grid'};
+  if(uploadFile)WD.file=uploadFile.name;
+  doGenerate();
+}
+
+// === GENERATE REPORTS ===
+const LMSGS=['Mapping financial categories to emission factors...','Applying DEFRA and GHG Protocol conversion factors...','Calculating Scope 1, 2, and 3 emissions...','Structuring your CSRD report...','Finalising confidence intervals...','Almost ready...'];
+const SYS=`You are Finance to Impact, a professional climate intelligence assistant. Convert financial and accounting data into accurate ESG, GHG, and CSRD reports. You are warm, encouraging, and precise.
+
+Methodology:
+1. Map each financial category to GHG Protocol emission scope using DEFRA UK conversion factors, EPA US factors, and EXIOBASE where relevant.
+2. Calculate emissions in kgCO2e and convert to tCO2e.
+3. Categorise Scope 3 by GHG Protocol Categories 1-15.
+4. For CSRD: follow ESRS E1. For ESG: follow GRI 305.
+5. Show all workings: every figure must be traceable to a source, formula, and assumption.
+6. Confidence levels: High (direct data), Medium (spend-based), Low (proxy).
+7. Provide 95% confidence intervals where applicable.
+8. Cite sources inline: DEFRA 2023, GHG Protocol Corporate Standard, IPCC AR6, etc.
+9. Do not invent data. If insufficient, state what is needed.
+10. Produce two outputs: REPORT 1 (Climate Impact Report) and REPORT 2 (Methodology and Transparency Report).
+11. Use GRI, TCFD, ESRS, CDP templates.
+12. Never use the word "AI". Refer to yourself as Finance to Impact.
+13. Do not use "---" as a divider.`;
+
+async function doGenerate(){
+  const ol=document.getElementById('overlay'); ol.style.display='flex';
+  let mi=0;const mel=document.getElementById('omsg');
+  const mint=setInterval(()=>{mel.textContent=LMSGS[mi%LMSGS.length];mi++;},2200);
+  window.speechSynthesis?.cancel();
+
+  const fd=rows.filter(r=>r.amt);
+  const up=`Company: ${WD.co}\nIndustry: ${WD.ind}\nCountry: ${WD.ktr||'Not specified'}\nEmployees: ${WD.emp||'Not specified'}\nReporting Year: ${WD.yr}\nOperations: ${WD.act||'Not provided'}\nPremises: ${WD.prem||'Not specified'}\nVehicle Fleet: ${WD.flt||'Not specified'}\nManufactures Goods: ${WD.mfg||'Not specified'}\nPurchases from Suppliers: ${WD.sup||'Not specified'}\nElectricity Spend: ${WD.elec||0} ${WD.ec||'GBP'} (${WD.es||'grid'})\nGas/Heating Spend: ${WD.gas||0} ${WD.ec||'GBP'}\nFuel Spend: ${WD.fuel||0} ${WD.ec||'GBP'}\nFinancial Data: ${JSON.stringify(fd)}\nSelected Scopes: ${[...scopes].map(n=>'Scope '+n).join(', ')}\nReport Types: ${selRep.join(', ')}\nOutput Format: ${ofmt}${WD.file?'\nUploaded file: '+WD.file:''}\n\nPlease generate:\n## REPORT 1: Climate Impact Report\nInclude: Executive Summary, Scope 1/2/3 Emissions (tCO2e), Total Carbon Footprint, Intensity Ratios, Recommendations.\n\n## REPORT 2: Methodology and Transparency Report\nInclude: Data Sources, Conversion Factors, Formulas Applied, Assumptions, Caveats, Confidence Assessment (High/Medium/Low), Confidence Intervals, References.\n\nUse markdown headings and tables throughout.`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,system:SYS,messages:[{role:'user',content:up}]})});
+    clearInterval(mint);ol.style.display='none';
+    if(!res.ok){const e=await res.json().catch(()=>({}));showRepErr(e?.error?.message||'API error. Please check your API key.');return;}
+    const dat=await res.json();
+    const txt=dat.content.map(c=>c.text||'').join('');
+    displayReports(txt); saveSession(txt);
+    speak('Your reports are ready. Please review them below.');
+  }catch(e){clearInterval(mint);ol.style.display='none';showRepErr(e.message||'Connection error. Please check your internet connection and API key.');}
+}
+
+function showRepErr(msg){
+  const el=document.getElementById('repout');el.style.display='';
+  el.innerHTML=`<div class="card cardR"><div style="font-weight:700;color:var(--r);margin-bottom:.375rem">Report Generation Failed</div><div style="font-size:.875rem">${msg}</div><div style="font-size:.875rem;margin-top:.75rem;color:var(--tm)">Please ensure your Anthropic API key is correctly inserted in the source file and billing is set up at console.anthropic.com.</div></div>`;
+}
+
+function md2html(md){
+  return md.replace(/^#### (.+)$/gm,'<h4>$1</h4>').replace(/^### (.+)$/gm,'<h3>$1</h3>').replace(/^## (.+)$/gm,'<h2>$1</h2>').replace(/^# (.+)$/gm,'<h1>$1</h1>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/^- (.+)$/gm,'<li>$1</li>').replace(/(<li>.*<\/li>\s*)+/gs,s=>'<ul>'+s+'</ul>').replace(/^\d+\. (.+)$/gm,'<li>$1</li>').replace(/\n{2,}/g,'</p><p>').replace(/\n/g,'<br>');
+}
+
+function displayReports(txt){
+  const sp=txt.split(/##\s*REPORT 2/i);
+  const r1=sp[0].replace(/##\s*REPORT 1[:\-]?[^\n]*/i,'').trim();
+  const r2=sp[1]?('## REPORT 2'+sp[1]).trim():'';
+  window._r1=r1; window._r2=r2;
+  const el=document.getElementById('repout'); el.style.display='';
+  el.innerHTML=`<div class="rgrid">
+    <div class="rpanel"><div class="rph">Climate Impact Report</div><div class="rpb">${md2html(r1)}</div></div>
+    <div class="rpanel"><div class="rph" style="background:#2d6a4f">Methodology and Transparency Report</div><div class="rpb">${md2html(r2||'See Report 1 for methodology notes.')}</div></div>
+  </div>
+  <div class="ract">
+    <button class="btn btnP" onclick="dlRep(1,'${ofmt}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download Report 1</button>
+    <button class="btn btnS" onclick="dlRep(2,'${ofmt}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download Report 2</button>
+    <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+      <input class="fi" type="text" id="refmt" placeholder="Change format..." style="width:130px" value="${ofmt}"/>
+      <button class="btn btnG btnSm" onclick="dlRep(1,document.getElementById('refmt').value.trim().toLowerCase()||'${ofmt}')">Re-export</button>
+    </div>
+    <button class="btn btnG" onclick="startNewRep()">New Report</button>
+  </div>`;
+}
+
+function dlRep(n,fmt){
+  const txt=n===1?window._r1:window._r2;
+  const tFmts=['txt','csv','json','md','xml'];
+  if(tFmts.includes(fmt)){
+    const c=fmt==='json'?JSON.stringify({report:txt},null,2):txt;
+    const b=new Blob([c],{type:'text/plain'});
+    const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`finance-to-impact-report-${n}.${fmt}`;a.click();URL.revokeObjectURL(u);
+  }else{
+    navigator.clipboard.writeText(txt).then(()=>alert(`Report ${n} copied to clipboard.\n\nFor full ${fmt.toUpperCase()} export, paste into your document editor or contact your administrator to enable server-side export.`)).catch(()=>alert(`Report ${n} is ready. Please copy the content from the panel above.`));
+  }
+}
+function startNewRep(){document.getElementById('repout').style.display='none';document.getElementById('repout').innerHTML='';setMode('g');startWiz();}
+
+// === SESSIONS ===
+function saveSession(txt){
+  const ss=gS();const id='s'+Date.now();
+  ss.push({id,uem:CU.em,co:WD.co,dt:new Date().toISOString(),st:'Complete',sc:[...scopes],rt:selRep,fmt:ofmt,rep:txt.substring(0,4000)});
+  sS(ss);
+}
+function reopenS(id){
+  const s=gS().find(s=>s.id===id);if(!s)return;
+  showDTab('report');
+  if(s.rep){document.getElementById('repout').style.display='';document.getElementById('repout').innerHTML=`<div class="cardG" style="margin-bottom:1rem"><strong>Session from ${new Date(s.dt).toLocaleDateString()}</strong> - ${s.co}</div><div class="rpanel"><div class="rph">Saved Session Report</div><div class="rpb">${md2html(s.rep)}</div></div>`;}
+}
+function renderSess(){
+  const q=(document.getElementById('ssearch')?.value||'').toLowerCase();
+  let ss=gS().filter(s=>s.uem===CU.em);
+  if(!sessOrd)sessOrd=ss.map(s=>s.id);
+  ss.sort((a,b)=>{const ai=sessOrd.indexOf(a.id),bi=sessOrd.indexOf(b.id);return(ai<0?999:ai)-(bi<0?999:bi);});
+  if(q)ss=ss.filter(s=>(s.co||'').toLowerCase().includes(q)||(s.st||'').toLowerCase().includes(q));
+  const el=document.getElementById('sesstbl');
+  if(!ss.length){el.innerHTML='<div class="card"><p style="font-size:.875rem;color:var(--tm)">No sessions found. Start a new report to create your first session.</p></div>';return;}
+  el.innerHTML=`<table class="stbl"><thead><tr><th style="width:20px"></th><th>Date</th><th>Company</th><th>Report Types</th><th>Scopes</th><th>Status</th><th>Actions</th></tr></thead><tbody>${ss.map(s=>`<tr draggable="true" id="sr-${s.id}" ondragstart="sdS('${s.id}')" ondragover="event.preventDefault();this.classList.add('dov')" ondragleave="this.classList.remove('dov')" ondrop="sdP(event,'${s.id}')"><td><span class="dh">&#8801;</span></td><td>${new Date(s.dt).toLocaleDateString()}</td><td style="font-weight:600">${s.co||'--'}</td><td style="font-size:.8rem">${(s.rt||[]).slice(0,2).join(', ')}</td><td>${(s.sc||[]).map(n=>`<span class="badge bG" style="font-size:.7rem">S${n}</span>`).join(' ')}</td><td><span class="badge ${s.st==='Complete'?'bG':'bGr'}">${s.st}</span></td><td style="display:flex;gap:.375rem;flex-wrap:wrap"><button class="btn btnS btnSm" onclick="reopenS('${s.id}')">View</button><button class="btn btnG btnSm" onclick="delSess('${s.id}')">Delete</button></td></tr>`).join('')}</tbody></table>`;
+}
+function sdS(id){sDragId=id;}
+function sdP(e,id){
+  e.preventDefault();document.getElementById('sr-'+id)?.classList.remove('dov');
+  if(!sessOrd||sDragId===id)return;
+  if(!sessOrd.includes(sDragId))sessOrd.unshift(sDragId);
+  const fi=sessOrd.indexOf(sDragId),ti=sessOrd.indexOf(id);
+  const[item]=sessOrd.splice(fi,1);sessOrd.splice(sessOrd.indexOf(id),0,item);
+  renderSess();
+}
+function delSess(id){if(!confirm('Delete this session? This cannot be undone.'))return;sS(gS().filter(s=>!(s.id===id&&s.uem===CU.em)));renderSess();}
+
+// === SETTINGS ===
+function renderSet(){
+  document.getElementById('setform').innerHTML=`<div class="trow"><div class="fg"><label class="fl">First Name</label><input class="fi" id="sf-fn" value="${CU.fn}"/></div><div class="fg"><label class="fl">Last Name</label><input class="fi" id="sf-ln" value="${CU.ln}"/></div></div><div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="sf-em" value="${CU.em}"/></div><div class="fg"><label class="fl">Company</label><input class="fi" value="${CU.co}" readonly style="opacity:.7"/></div><div class="fg"><label class="fl">Industry</label><input class="fi" value="${CU.ind}" readonly style="opacity:.7"/></div><button class="btn btnP" onclick="saveSet()">Save Changes</button>`;
+  document.getElementById('setcode').textContent=codeVis?CU.code:'......';
+  document.getElementById('codevisbtn').textContent=codeVis?'Hide Code':'Show Code';
+}
+function togCodeVis(){codeVis=!codeVis;document.getElementById('setcode').textContent=codeVis?CU.code:'......';document.getElementById('codevisbtn').textContent=codeVis?'Hide Code':'Show Code';}
+function copySetCode(){navigator.clipboard.writeText(CU.code).then(()=>showM('setmsg','Code copied!','s'));}
+function saveSet(){
+  const fn=document.getElementById('sf-fn').value.trim();
+  const ln=document.getElementById('sf-ln').value.trim();
+  const em=document.getElementById('sf-em').value.trim().toLowerCase();
+  if(!fn||!ln||!em) return showM('setmsg','Please complete all fields.');
+  const us=gU();const idx=us.findIndex(u=>u.em===CU.em&&u.code===CU.code);
+  if(idx<0) return showM('setmsg','Could not update. Please sign in again.');
+  us[idx].fn=fn;us[idx].ln=ln;us[idx].em=em;sU(us);CU=us[idx];fillSbar();
+  showM('setmsg','Changes saved.','s');
+}
+function delAcc(){
+  if(!confirm('Are you sure you want to permanently delete your account and all data? This cannot be undone.'))return;
+  sU(gU().filter(u=>!(u.em===CU.em&&u.code===CU.code)));sS(gS().filter(s=>s.uem!==CU.em));doSignOut();
+}
+
+// === ADMIN ===
+function showAdmin(){
+  document.getElementById('authv').style.display='none';
+  document.getElementById('dashv').style.display='none';
+  document.getElementById('adminv').style.display='block';
+  const us=gU().filter(u=>u.em!==ADMIN_EM);
+  const ss=gS();
+  const byI={};us.forEach(u=>{byI[u.ind]=(byI[u.ind]||0)+1;});
+  const mx=Math.max(1,...Object.values(byI));
+  function renderAdmin(q){
+    const f=q?us.filter(u=>[u.fn,u.ln,u.em,u.co].some(v=>v.toLowerCase().includes(q))):us;
+    document.getElementById('admintbody').innerHTML=f.map(u=>`<tr><td>${u.fn} ${u.ln}</td><td>${u.em}</td><td>${u.co}</td><td>${u.ind}</td><td>${new Date(u.cr).toLocaleDateString()}</td><td>${ss.filter(s=>s.uem===u.em).length}</td></tr>`).join('');
+  }
+  document.getElementById('adminner').innerHTML=`<div class="adsg"><div class="adsc"><div class="snum">${us.length}</div><div class="slbl">Registered Users</div></div><div class="adsc"><div class="snum">${ss.length}</div><div class="slbl">Total Sessions</div></div><div class="adsc"><div class="snum">${Object.keys(byI).length}</div><div class="slbl">Industries</div></div></div>
+  <div class="card" style="margin-bottom:2rem"><div class="stit">Users by Industry</div>${Object.entries(byI).sort((a,b)=>b[1]-a[1]).map(([ind,cnt])=>`<div class="cbr"><div class="cbl">${ind}</div><div class="cbt"><div class="cbf" style="width:${Math.round(cnt/mx*100)}%"></div></div><div class="cbv">${cnt}</div></div>`).join('')}</div>
+  <div class="card"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1rem"><div class="stit" style="margin:0">All Users</div><div style="display:flex;gap:.75rem;align-items:center"><input class="fi" type="text" id="admsearch" placeholder="Search..." oninput="window._adminRender(this.value.toLowerCase())" style="width:200px"/><button class="btn btnS btnSm" onclick="expCSV()">Export CSV</button></div></div><div style="overflow-x:auto"><table class="stbl" style="width:100%"><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Industry</th><th>Registered</th><th>Sessions</th></tr></thead><tbody id="admintbody"></tbody></table></div></div>`;
+  window._adminRender=renderAdmin;renderAdmin('');
+}
+function expCSV(){
+  const us=gU().filter(u=>u.em!==ADMIN_EM);const ss=gS();
+  const hd='First Name,Last Name,Email,Company,Industry,Registered,Sessions\n';
+  const rows2=us.map(u=>`${u.fn},${u.ln},${u.em},${u.co},${u.ind},${new Date(u.cr).toLocaleDateString()},${ss.filter(s=>s.uem===u.em).length}`).join('\n');
+  const b=new Blob([hd+rows2],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='finance-to-impact-users.csv';a.click();URL.revokeObjectURL(u);
+}
+
+// === RESPONSIVE ===
+window.addEventListener('resize',()=>{
+  const b=document.getElementById('mmbtn');
+  if(b)b.style.display=window.innerWidth<=768&&CU?'flex':'none';
+  if(window.innerWidth>768)document.getElementById('sbar')?.classList.remove('open');
+});
+if('speechSynthesis' in window)window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+</script>
+</body>
+</html>
