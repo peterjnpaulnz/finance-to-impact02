@@ -235,6 +235,14 @@ input:checked+.sl::before{transform:translateX(18px)}
   .mhead{padding:.875rem 1rem}
 }
 @media(max-width:480px){.sgrid,.adsg{grid-template-columns:1fr}}
+
+/* MISSING DATA INTERVIEW */
+.interview-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:990;display:flex;align-items:center;justify-content:center;padding:1rem}
+.interview-card{background:#fff;border-radius:16px;padding:2rem;max-width:500px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:1rem}
+.interview-head{font-size:1.1rem;font-weight:700;color:var(--g)}
+.interview-msg{font-size:.9rem;color:var(--tm);line-height:1.6;background:var(--gl);border-left:3px solid var(--g);padding:.75rem 1rem;border-radius:0 8px 8px 0}
+.interview-progress{font-size:.75rem;color:var(--tl);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.interview-btns{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.5rem}
 </style>
 </head>
 <body>
@@ -535,6 +543,34 @@ input:checked+.sl::before{transform:translateX(18px)}
 </div>
 
 <footer id="footer">Finance to Impact | Helping organisations understand their climate impact</footer>
+
+<!-- MISSING DATA INTERVIEW MODAL -->
+<div id="interview-modal" style="display:none" class="interview-overlay">
+  <div class="interview-card">
+    <div class="interview-progress" id="iv-progress"></div>
+    <div class="interview-head">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="iv-title">Additional Data Needed</span>
+    </div>
+    <div class="interview-msg" id="iv-msg"></div>
+    <div class="fg" id="iv-input-wrap">
+      <label class="fl" id="iv-label"></label>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <input class="fi" id="iv-input" placeholder="Enter value or leave blank if unknown" style="flex:1"/>
+        <select class="fsel" id="iv-unit" style="width:90px;display:none">
+          <option>GBP</option><option>EUR</option><option>USD</option><option>kWh</option><option>litres</option><option>tonnes</option>
+        </select>
+      </div>
+    </div>
+    <div class="interview-btns">
+      <button class="btn btnP" onclick="ivSubmit()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Submit and Continue
+      </button>
+      <button class="btn btnG" onclick="ivSkip()">I do not have this data - Skip</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // === CONFIG ===
@@ -1011,6 +1047,7 @@ function genFromUpload(){
     return;
   }
   WD.reportStyle=reportStyle;
+  WD.useInterview=true;
   ofmt=document.getElementById('u-fmt')?.value?.trim()?.toLowerCase()||'pdf';
   WD={co:CU.co,ind:CU.ind,ktr:'Not specified',yr:new Date().getFullYear()-1,emp:'Not specified',act:CU.ind+' company',prem:'Not specified',flt:'Not specified',mfg:'Not specified',sup:'Not specified',elec:0,gas:0,fuel:0,ec:'GBP',es:'grid'};
 
@@ -1067,9 +1104,16 @@ async function doGenerate(){
   const mint=setInterval(()=>{mel.textContent=LMSGS[mi%LMSGS.length];mi++;},2200);
   window.speechSynthesis?.cancel();
 
+  // If this is an upload-mode generation with interview enabled, run interview first
+  if(WD.useInterview&&!WD._interviewDone){
+    WD._interviewDone=true;
+    doGenerateWithInterview();
+    return;
+  }
+
   const fd=rows.filter(r=>r.amt);
   const fileSection=WD.fileContent ? `\n\nUPLOADED FINANCIAL FILE (${WD.file}):\n${WD.fileContent}\n\nIMPORTANT: Extract all financial figures, line items, account codes, and categories from the uploaded file above. Use this as the PRIMARY data source for all calculations. Map every line item to the appropriate GHG scope and emission category.` : (WD.file ? `\nUploaded file name: ${WD.file} (content could not be read - use any manually entered data below)` : '');
-  const up=`Company: ${WD.co}\nIndustry: ${WD.ind}\nCountry: ${WD.ktr||'Not specified'}\nEmployees: ${WD.emp||'Not specified'}\nReporting Year: ${WD.yr}\nOperations: ${WD.act||'Not provided'}\nPremises: ${WD.prem||'Not specified'}\nVehicle Fleet: ${WD.flt||'Not specified'}\nManufactures Goods: ${WD.mfg||'Not specified'}\nPurchases from Suppliers: ${WD.sup||'Not specified'}\nElectricity Spend: ${WD.elec||0} ${WD.ec||'GBP'} (${WD.es||'grid'})\nGas/Heating Spend: ${WD.gas||0} ${WD.ec||'GBP'}\nFuel Spend: ${WD.fuel||0} ${WD.ec||'GBP'}\nManually Entered Financial Data: ${JSON.stringify(fd)}\nSelected Scopes: ${[...scopes].map(n=>'Scope '+n).join(', ')}\nReport Types: ${selRep.join(', ')}\nOutput Format: ${ofmt}${fileSection}\n\nReport Style Requested: ${WD.reportStyle==='best'?'BEST POSSIBLE REPORT':'STANDARD FORMAT'}\n\n${WD.reportStyle==='best'?`The user has chosen BEST POSSIBLE REPORT. Do not follow any fixed template. Instead:\n- Analyse the data thoroughly and identify every possible climate impact metric you can calculate or estimate from it.\n- Use whichever international frameworks, standards, or methodologies (GHG Protocol, ESRS, GRI, TCFD, CDP, ISO 14064, EEIO, EXIOBASE, etc.) are most appropriate for THIS specific data.\n- Structure the report in the way that best communicates the climate impact of this organisation, not according to a prescribed format.\n- Be creative, thorough, and produce the most useful and insightful climate report possible.\n- Clearly explain what each metric means and why it matters.\n- Highlight the most significant findings prominently.`:`The user has chosen STANDARD FORMAT with these specifications:\nSelected Scopes: ${[...scopes].map(n=>'Scope '+n).join(', ')}\nReport Types: ${selRep.join(', ')}\nFollow the standard GHG Protocol, ESRS E1, and GRI 305 templates strictly for the selected scopes and report types.`}\n\nPlease generate both reports now:\n\n## REPORT 1: Climate Impact Report\nInclude: Executive Summary, Data Gaps Identified (if any), all relevant emissions tables, Total Carbon Footprint, Intensity Ratios, Key Findings, Recommendations.\n\n## REPORT 2: Methodology and Transparency Report\nInclude: Data Sources Used, Conversion Factors table (Category, Factor, Unit, Source), Formulas Applied (show each as: Value x Factor = Result), Assumptions Made, Caveats and Limitations, Confidence Assessment table (Category, tCO2e, Confidence Level, 95% CI Lower, 95% CI Upper, Notes), Statistical Significance notes, Full Reference List.\n\nUse markdown headings and tables throughout. Both reports must always be present.`;
+  const up=`Company: ${WD.co}\nIndustry: ${WD.ind}\nCountry: ${WD.ktr||'Not specified'}\nEmployees: ${WD.emp||'Not specified'}\nReporting Year: ${WD.yr}\nOperations: ${WD.act||'Not provided'}\nPremises: ${WD.prem||'Not specified'}\nVehicle Fleet: ${WD.flt||'Not specified'}\nManufactures Goods: ${WD.mfg||'Not specified'}\nPurchases from Suppliers: ${WD.sup||'Not specified'}\nElectricity Spend: ${WD.elec||0} ${WD.ec||'GBP'} (${WD.es||'grid'})\nGas/Heating Spend: ${WD.gas||0} ${WD.ec||'GBP'}\nFuel Spend: ${WD.fuel||0} ${WD.ec||'GBP'}\nManually Entered Financial Data: ${JSON.stringify(fd)}\nSelected Scopes: ${[...scopes].map(n=>'Scope '+n).join(', ')}\nReport Types: ${selRep.join(', ')}\nOutput Format: ${ofmt}${fileSection}\n\nReport Style Requested: ${WD.reportStyle==='best'?'BEST POSSIBLE REPORT':'STANDARD FORMAT'}\n\n${WD.reportStyle==='best'?`The user has chosen BEST POSSIBLE REPORT. Do not follow any fixed template. Instead:\n- Analyse the data thoroughly and identify every possible climate impact metric you can calculate or estimate from it.\n- Use whichever international frameworks, standards, or methodologies (GHG Protocol, ESRS, GRI, TCFD, CDP, ISO 14064, EEIO, EXIOBASE, etc.) are most appropriate for THIS specific data.\n- Structure the report in the way that best communicates the climate impact of this organisation, not according to a prescribed format.\n- Be creative, thorough, and produce the most useful and insightful climate report possible.\n- Clearly explain what each metric means and why it matters.\n- Highlight the most significant findings prominently.`:`The user has chosen STANDARD FORMAT with these specifications:\nSelected Scopes: ${[...scopes].map(n=>'Scope '+n).join(', ')}\nReport Types: ${selRep.join(', ')}\nFollow the standard GHG Protocol, ESRS E1, and GRI 305 templates strictly for the selected scopes and report types.`}\n\nPlease generate both reports now:\n\n## REPORT 1: Climate Impact Report\nInclude: Executive Summary, Data Gaps Identified (if any), all relevant emissions tables, Total Carbon Footprint, Intensity Ratios, Key Findings, Recommendations.\n\n## REPORT 2: Methodology and Transparency Report\nInclude: Data Sources Used, Conversion Factors table (Category, Factor, Unit, Source), Formulas Applied (show each as: Value x Factor = Result), Assumptions Made, Caveats and Limitations, Confidence Assessment table (Category, tCO2e, Confidence Level, 95% CI Lower, 95% CI Upper, Notes), Statistical Significance notes, Full Reference List.\n\nUse markdown headings and tables throughout. Both reports must always be present.${WD.ivSupplied ? '\\n\\n'+WD.ivSupplied : ''}${WD.ivSkipped ? '\\n\\n'+WD.ivSkipped : ''}\\n\\nIMPORTANT: Where the user has provided additional data via the interview above, use it. Where they confirmed data is not available, note this clearly in the Data Gaps section and do not estimate that figure.`;
 
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,system:SYS,messages:[{role:'user',content:up}]})});
@@ -1426,6 +1470,157 @@ window.addEventListener('resize',()=>{
   if(window.innerWidth>768)document.getElementById('sbar')?.classList.remove('open');
 });
 if('speechSynthesis' in window)window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+
+// ============================================================
+// MISSING DATA INTERVIEW ENGINE
+// ============================================================
+let ivQueue=[];    // list of missing data items to ask about
+let ivIndex=0;     // current question index
+let ivAnswers={};  // collected answers
+let ivResolve=null;// promise resolver called when interview finishes
+
+// Kick off the two-pass generate process
+async function doGenerateWithInterview(){
+  const ol=document.getElementById('overlay');
+  ol.style.display='flex';
+  document.getElementById('omsg').textContent='Analysing your data for completeness...';
+  window.speechSynthesis?.cancel();
+
+  // PASS 1: Ask the AI to identify missing data only (fast, no full report)
+  const fd=rows.filter(r=>r.amt);
+  const fileSection=WD.fileContent?`\n\nUPLOADED FILE (${WD.file}):\n${WD.fileContent.substring(0,8000)}`:(WD.file?`\nFile name: ${WD.file}`:'');
+  const analysisPrompt=`You are Finance to Impact. Analyse the financial data provided and identify ONLY what key data is missing that would be needed to calculate the requested climate impact scopes and reports accurately.
+
+Company: ${WD.co}, Industry: ${WD.ind}, Country: ${WD.ktr||'Not specified'}, Year: ${WD.yr}
+Selected Scopes: ${[...scopes].map(n=>'Scope '+n).join(', ')}
+Report Style: ${WD.reportStyle==='best'?'Best Possible Report':'Standard Format'}
+Report Types: ${selRep.join(', ')}
+Electricity Spend: ${WD.elec||0} ${WD.ec||'GBP'} (${WD.es||'grid'})
+Gas/Heating Spend: ${WD.gas||0} ${WD.ec||'GBP'}
+Fuel Spend: ${WD.fuel||0} ${WD.ec||'GBP'}
+Manual Financial Data: ${JSON.stringify(fd)}${fileSection}
+
+Respond ONLY with a JSON array of missing data items. Each item must have:
+- "id": a short unique key (e.g. "electricity_spend")
+- "title": short name of the missing data (e.g. "Annual Electricity Spend")  
+- "question": a friendly conversational question to ask the user (e.g. "Do you know your annual electricity spend? This helps us calculate your Scope 2 emissions.")
+- "why": one sentence explaining why this data matters for the report
+- "unit": the unit or format expected (e.g. "GBP", "kWh", "litres of diesel", "number")
+- "scope": which scope this affects (e.g. "Scope 2")
+- "showUnit": true if a unit selector should be shown, false if text input only
+
+If no data is missing, return an empty array: []
+Return ONLY the JSON array, no other text.`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:analysisPrompt}]})
+    });
+    ol.style.display='none';
+    if(!res.ok){doGenerate();return;} // fallback to normal generate on error
+    const dat=await res.json();
+    const rawText=dat.content.map(c=>c.text||'').join('').trim();
+
+    // Parse the JSON array from the response
+    let missing=[];
+    try{
+      const jsonMatch=rawText.match(/\[[\s\S]*\]/);
+      if(jsonMatch) missing=JSON.parse(jsonMatch[0]);
+    }catch(e){missing=[];}
+
+    if(!missing||missing.length===0){
+      // No missing data - go straight to report generation
+      doGenerate();
+      return;
+    }
+
+    // Start the interview
+    ivQueue=missing;
+    ivIndex=0;
+    ivAnswers={};
+    speak('I have reviewed your data and have a few questions before I generate your report.');
+    await runInterview();
+
+    // Merge interview answers into WD before generating
+    mergeIvAnswers();
+    doGenerate();
+
+  }catch(e){
+    ol.style.display='none';
+    doGenerate(); // fallback
+  }
+}
+
+// Run the interview - returns a promise that resolves when all questions answered
+function runInterview(){
+  return new Promise(resolve=>{
+    ivResolve=resolve;
+    showIvQuestion();
+  });
+}
+
+function showIvQuestion(){
+  if(ivIndex>=ivQueue.length){
+    // All questions done
+    document.getElementById('interview-modal').style.display='none';
+    if(ivResolve) ivResolve();
+    return;
+  }
+  const q=ivQueue[ivIndex];
+  document.getElementById('interview-modal').style.display='flex';
+  document.getElementById('iv-progress').textContent=`Question ${ivIndex+1} of ${ivQueue.length}`;
+  document.getElementById('iv-title').textContent=`Data needed for ${q.scope||'your report'}`;
+  document.getElementById('iv-msg').innerHTML=`<strong>${q.title}</strong><br/><br/>${q.question}<br/><br/><em style="font-size:.8rem;color:var(--tm)">${q.why}</em>`;
+  document.getElementById('iv-label').textContent=`Your answer (${q.unit||'value'}):`;
+  document.getElementById('iv-input').value='';
+  document.getElementById('iv-input').placeholder=`Enter ${q.unit||'value'} or leave blank if unknown`;
+  const unitSel=document.getElementById('iv-unit');
+  unitSel.style.display=q.showUnit?'':'none';
+  speak(q.question);
+}
+
+function ivSubmit(){
+  const q=ivQueue[ivIndex];
+  const val=document.getElementById('iv-input').value.trim();
+  const unit=document.getElementById('iv-unit').value;
+  if(val){
+    ivAnswers[q.id]={title:q.title, value:val, unit:q.showUnit?unit:q.unit, scope:q.scope};
+  }
+  ivIndex++;
+  showIvQuestion();
+}
+
+function ivSkip(){
+  // User cannot supply this data - record as skipped and move on
+  const q=ivQueue[ivIndex];
+  ivAnswers[q.id]={title:q.title, value:'NOT PROVIDED', unit:q.unit, scope:q.scope, skipped:true};
+  ivIndex++;
+  showIvQuestion();
+}
+
+// Merge interview answers back into WD so doGenerate can use them
+function mergeIvAnswers(){
+  const supplied=[];
+  const skipped=[];
+  Object.entries(ivAnswers).forEach(([id,ans])=>{
+    if(ans.skipped){
+      skipped.push(`${ans.title} (${ans.scope}): Not provided by user`);
+    } else {
+      supplied.push(`${ans.title} (${ans.scope}): ${ans.value} ${ans.unit||''}`);
+      // Map common ids back to WD fields
+      if(id==='electricity_spend'||id==='electricity'){WD.elec=ans.value;WD.ec=ans.unit||WD.ec;}
+      if(id==='gas_spend'||id==='gas'||id==='heating'){WD.gas=ans.value;}
+      if(id==='fuel_spend'||id==='fuel'){WD.fuel=ans.value;}
+      if(id==='electricity_source'||id==='energy_source'){WD.es=ans.value;}
+    }
+  });
+  // Store as extra context for the prompt
+  WD.ivSupplied=supplied.length?'Additional data provided by user during interview:\n'+supplied.join('\n'):'';
+  WD.ivSkipped=skipped.length?'Data the user confirmed they cannot provide:\n'+skipped.join('\n'):'';
+}
+
 </script>
 </body>
 </html>
