@@ -452,9 +452,36 @@ input:checked+.sl::before{transform:translateX(18px)}
         <!-- STEP C: Report options (shown after source is chosen) -->
         <div id="src-options-section" style="display:none">
           <div class="card" style="margin-top:1.25rem">
-            <div style="font-weight:700;margin-bottom:1rem">Step 2: Report Options</div>
-            <div id="u-scopes"></div><div class="divr"></div>
-            <div id="u-rtypes"></div><div class="divr"></div>
+            <div style="font-weight:700;font-size:1rem;margin-bottom:.75rem">Step 2: What kind of report do you want?</div>
+
+            <!-- Report style choice -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem">
+              <div class="sccard" id="rs-best" onclick="setReportStyle('best')" style="flex-direction:column;align-items:flex-start;padding:1rem">
+                <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.375rem">
+                  <div class="scchk" id="rs-best-chk"></div>
+                  <div style="font-weight:700;font-size:.95rem;color:var(--g)">Best Possible Report</div>
+                </div>
+                <div style="font-size:.8rem;color:var(--tm);line-height:1.5">Finance to Impact analyses your data and produces the most comprehensive and accurate climate impact report it can, using whatever standards and frameworks best fit your data. No fixed template. Maximum insight.</div>
+              </div>
+              <div class="sccard" id="rs-standard" onclick="setReportStyle('standard')" style="flex-direction:column;align-items:flex-start;padding:1rem">
+                <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.375rem">
+                  <div class="scchk" id="rs-standard-chk"></div>
+                  <div style="font-weight:700;font-size:.95rem;color:var(--g)">Standard Format</div>
+                </div>
+                <div style="font-size:.8rem;color:var(--tm);line-height:1.5">Choose specific formats: Scope 1, 2, 3 GHG inventory, CSRD, ESG Summary, or Investment-Grade Carbon Report. Output follows recognised international templates.</div>
+              </div>
+            </div>
+
+            <!-- Standard format options - only shown when Standard is chosen -->
+            <div id="standard-opts" style="display:none">
+              <div class="divr" style="margin:1rem 0"></div>
+              <div id="u-scopes"></div>
+              <div class="divr"></div>
+              <div id="u-rtypes"></div>
+            </div>
+
+            <div class="divr" style="margin:1rem 0"></div>
+
             <div class="fg">
               <label class="fl">Preferred Output Format</label>
               <input class="fi" type="text" id="u-fmt" placeholder="e.g. pdf, docx, xlsx, csv, json"/>
@@ -612,6 +639,7 @@ function doSignOut(){
   uploadFile=null;
   uploadFileContent='';
   dataSource='';
+  reportStyle='';
   uRows=[{id:Date.now(),cat:'',desc:'',amt:'',cur:'GBP'}];
   const fa=document.getElementById('faccarea');if(fa){fa.style.display='none';fa.innerHTML='';}
   const fi=document.getElementById('finput');if(fi)fi.value='';
@@ -919,6 +947,21 @@ function showFile(f){
 }
 
 let dataSource=''; // 'file' or 'form'
+let reportStyle=''; // 'best' or 'standard'
+
+function setReportStyle(style){
+  reportStyle=style;
+  ['best','standard'].forEach(s=>{
+    const card=document.getElementById('rs-'+s);
+    const chk=document.getElementById('rs-'+s+'-chk');
+    if(card) card.classList.toggle('sel',s===style);
+    if(chk) chk.innerHTML=s===style?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'';
+  });
+  // Show/hide standard format options
+  const stdOpts=document.getElementById('standard-opts');
+  if(stdOpts) stdOpts.style.display=style==='standard'?'':'none';
+  if(style==='standard') renderUploadOpts();
+}
 let uRows=[{id:Date.now(),cat:'',desc:'',amt:'',cur:'GBP'}];
 
 function setDataSource(src){
@@ -963,6 +1006,11 @@ function genFromUpload(){
     alert('Please choose a data source first: Upload a File or Enter Data Manually.');
     return;
   }
+  if(!reportStyle){
+    alert('Please choose a report type: Best Possible Report or Standard Format.');
+    return;
+  }
+  WD.reportStyle=reportStyle;
   ofmt=document.getElementById('u-fmt')?.value?.trim()?.toLowerCase()||'pdf';
   WD={co:CU.co,ind:CU.ind,ktr:'Not specified',yr:new Date().getFullYear()-1,emp:'Not specified',act:CU.ind+' company',prem:'Not specified',flt:'Not specified',mfg:'Not specified',sup:'Not specified',elec:0,gas:0,fuel:0,ec:'GBP',es:'grid'};
 
@@ -1021,7 +1069,7 @@ async function doGenerate(){
 
   const fd=rows.filter(r=>r.amt);
   const fileSection=WD.fileContent ? `\n\nUPLOADED FINANCIAL FILE (${WD.file}):\n${WD.fileContent}\n\nIMPORTANT: Extract all financial figures, line items, account codes, and categories from the uploaded file above. Use this as the PRIMARY data source for all calculations. Map every line item to the appropriate GHG scope and emission category.` : (WD.file ? `\nUploaded file name: ${WD.file} (content could not be read - use any manually entered data below)` : '');
-  const up=`Company: ${WD.co}\nIndustry: ${WD.ind}\nCountry: ${WD.ktr||'Not specified'}\nEmployees: ${WD.emp||'Not specified'}\nReporting Year: ${WD.yr}\nOperations: ${WD.act||'Not provided'}\nPremises: ${WD.prem||'Not specified'}\nVehicle Fleet: ${WD.flt||'Not specified'}\nManufactures Goods: ${WD.mfg||'Not specified'}\nPurchases from Suppliers: ${WD.sup||'Not specified'}\nElectricity Spend: ${WD.elec||0} ${WD.ec||'GBP'} (${WD.es||'grid'})\nGas/Heating Spend: ${WD.gas||0} ${WD.ec||'GBP'}\nFuel Spend: ${WD.fuel||0} ${WD.ec||'GBP'}\nManually Entered Financial Data: ${JSON.stringify(fd)}\nSelected Scopes: ${[...scopes].map(n=>'Scope '+n).join(', ')}\nReport Types: ${selRep.join(', ')}\nOutput Format: ${ofmt}${fileSection}\n\nPlease generate both reports now:\n\n## REPORT 1: Climate Impact Report\nInclude: Executive Summary, Data Gaps Identified (if any - list exactly what is missing and what the user must supply), Scope 1 Emissions table, Scope 2 Emissions table, Scope 3 Emissions table, Total Carbon Footprint summary table, Intensity Ratios, Recommendations.\n\n## REPORT 2: Methodology and Transparency Report\nInclude: Data Sources Used, Conversion Factors table (Category, Factor, Unit, Source), Formulas Applied (show each as: Value x Factor = Result), Assumptions Made, Caveats and Limitations, Confidence Assessment table (Category, tCO2e, Confidence Level, 95% CI Lower, 95% CI Upper, Notes), Statistical Significance notes, Full Reference List.\n\nUse markdown headings and tables throughout. Both reports must always be present.`;
+  const up=`Company: ${WD.co}\nIndustry: ${WD.ind}\nCountry: ${WD.ktr||'Not specified'}\nEmployees: ${WD.emp||'Not specified'}\nReporting Year: ${WD.yr}\nOperations: ${WD.act||'Not provided'}\nPremises: ${WD.prem||'Not specified'}\nVehicle Fleet: ${WD.flt||'Not specified'}\nManufactures Goods: ${WD.mfg||'Not specified'}\nPurchases from Suppliers: ${WD.sup||'Not specified'}\nElectricity Spend: ${WD.elec||0} ${WD.ec||'GBP'} (${WD.es||'grid'})\nGas/Heating Spend: ${WD.gas||0} ${WD.ec||'GBP'}\nFuel Spend: ${WD.fuel||0} ${WD.ec||'GBP'}\nManually Entered Financial Data: ${JSON.stringify(fd)}\nSelected Scopes: ${[...scopes].map(n=>'Scope '+n).join(', ')}\nReport Types: ${selRep.join(', ')}\nOutput Format: ${ofmt}${fileSection}\n\nReport Style Requested: ${WD.reportStyle==='best'?'BEST POSSIBLE REPORT':'STANDARD FORMAT'}\n\n${WD.reportStyle==='best'?`The user has chosen BEST POSSIBLE REPORT. Do not follow any fixed template. Instead:\n- Analyse the data thoroughly and identify every possible climate impact metric you can calculate or estimate from it.\n- Use whichever international frameworks, standards, or methodologies (GHG Protocol, ESRS, GRI, TCFD, CDP, ISO 14064, EEIO, EXIOBASE, etc.) are most appropriate for THIS specific data.\n- Structure the report in the way that best communicates the climate impact of this organisation, not according to a prescribed format.\n- Be creative, thorough, and produce the most useful and insightful climate report possible.\n- Clearly explain what each metric means and why it matters.\n- Highlight the most significant findings prominently.`:`The user has chosen STANDARD FORMAT with these specifications:\nSelected Scopes: ${[...scopes].map(n=>'Scope '+n).join(', ')}\nReport Types: ${selRep.join(', ')}\nFollow the standard GHG Protocol, ESRS E1, and GRI 305 templates strictly for the selected scopes and report types.`}\n\nPlease generate both reports now:\n\n## REPORT 1: Climate Impact Report\nInclude: Executive Summary, Data Gaps Identified (if any), all relevant emissions tables, Total Carbon Footprint, Intensity Ratios, Key Findings, Recommendations.\n\n## REPORT 2: Methodology and Transparency Report\nInclude: Data Sources Used, Conversion Factors table (Category, Factor, Unit, Source), Formulas Applied (show each as: Value x Factor = Result), Assumptions Made, Caveats and Limitations, Confidence Assessment table (Category, tCO2e, Confidence Level, 95% CI Lower, 95% CI Upper, Notes), Statistical Significance notes, Full Reference List.\n\nUse markdown headings and tables throughout. Both reports must always be present.`;
 
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,system:SYS,messages:[{role:'user',content:up}]})});
