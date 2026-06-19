@@ -566,7 +566,16 @@ function loginU(u){
   loadVC(); renderMute();
 }
 function doSignOut(){
-  CU=null; window.speechSynthesis&&window.speechSynthesis.cancel();
+  CU=null;
+  // Clear uploaded file state so it does not persist into next session
+  uploadFile=null;
+  uploadFileContent='';
+  const fa=document.getElementById('faccarea');if(fa){fa.style.display='none';fa.innerHTML='';}
+  const fi=document.getElementById('finput');if(fi)fi.value='';
+  const dz2=document.getElementById('dzone');if(dz2)dz2.classList.remove('da');
+  // Reset wizard
+  step=0;
+  window.speechSynthesis&&window.speechSynthesis.cancel();
   document.getElementById('authv').style.display='flex';
   document.getElementById('dashv').style.display='none';
   document.getElementById('adminv').style.display='none';
@@ -840,12 +849,37 @@ function togScopeU(n){if(scopes.has(n))scopes.delete(n);else scopes.add(n);rende
 const dz=document.getElementById('dzone');
 if(dz){dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('da');});dz.addEventListener('dragleave',()=>dz.classList.remove('da'));dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('da');const f=e.dataTransfer.files[0];if(f)showFile(f);});}
 let uploadFile=null;
+let uploadFileContent='';
+
 function onFileSel(inp){if(inp.files[0])showFile(inp.files[0]);}
-function showFile(f){uploadFile=f;const a=document.getElementById('faccarea');a.style.display='';a.innerHTML=`<div class="facc"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><div><div style="font-weight:600;font-size:.875rem">${f.name}</div><div style="font-size:.75rem;color:var(--tl)">${(f.size/1024).toFixed(1)} KB - File ready</div></div></div>`;}
+
+function showFile(f){
+  uploadFile=f;
+  const a=document.getElementById('faccarea');
+  a.style.display='';
+  a.innerHTML=`<div class="facc"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><div><div style="font-weight:600;font-size:.875rem">${f.name}</div><div style="font-size:.75rem;color:var(--tl)">${(f.size/1024).toFixed(1)} KB - Reading file...</div></div></div>`;
+  // Read file content so it can be sent to the API
+  const reader=new FileReader();
+  reader.onload=e=>{
+    uploadFileContent=e.target.result;
+    a.innerHTML=`<div class="facc"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><div><div style="font-weight:600;font-size:.875rem">${f.name}</div><div style="font-size:.75rem;color:var(--tl)">${(f.size/1024).toFixed(1)} KB - File ready and loaded</div></div></div>`;
+  };
+  reader.onerror=()=>{uploadFileContent='';};
+  // Read as text for CSV/JSON/XML/TXT, as dataURL for others
+  const textTypes=['.csv','.json','.xml','.txt','.ofx','.qbo'];
+  const isText=textTypes.some(ext=>f.name.toLowerCase().endsWith(ext));
+  if(isText) reader.readAsText(f);
+  else reader.readAsDataURL(f);
+}
+
 function genFromUpload(){
   ofmt=document.getElementById('u-fmt')?.value?.trim()?.toLowerCase()||'pdf';
   WD={co:CU.co,ind:CU.ind,ktr:'Not specified',yr:new Date().getFullYear()-1,emp:'Not specified',act:CU.ind+' company',prem:'Not specified',flt:'Not specified',mfg:'Not specified',sup:'Not specified',elec:0,gas:0,fuel:0,ec:'GBP',es:'grid'};
-  if(uploadFile)WD.file=uploadFile.name;
+  if(uploadFile){
+    WD.file=uploadFile.name;
+    // Attach content - truncate to 8000 chars to stay within token limits
+    WD.fileContent=uploadFileContent ? uploadFileContent.substring(0,8000) : '';
+  }
   doGenerate();
 }
 
@@ -860,13 +894,15 @@ Methodology:
 4. For CSRD: follow ESRS E1. For ESG: follow GRI 305.
 5. Show all workings: every figure must be traceable to a source, formula, and assumption.
 6. Confidence levels: High (direct data), Medium (spend-based), Low (proxy).
-7. Provide 95% confidence intervals where applicable.
+7. Provide 95% confidence intervals where applicable. For each scope, show a table with: Emission Category, Estimated tCO2e, Conversion Factor Used, Source, Confidence Level, 95% CI Lower, 95% CI Upper.
 8. Cite sources inline: DEFRA 2023, GHG Protocol Corporate Standard, IPCC AR6, etc.
-9. Do not invent data. If insufficient, state what is needed.
-10. Produce two outputs: REPORT 1 (Climate Impact Report) and REPORT 2 (Methodology and Transparency Report).
-11. Use GRI, TCFD, ESRS, CDP templates.
-12. Never use the word "AI". Refer to yourself as Finance to Impact.
-13. Do not use "---" as a divider.`;
+9. CRITICAL - Missing data: If data is insufficient to calculate a specific scope, you MUST clearly state this in a highlighted section titled "Data Gaps Identified". List exactly what data is missing and what the user must supply to calculate that scope. Do not estimate or guess. Do not produce a figure for that scope.
+10. ALWAYS produce exactly two clearly separated outputs. REPORT 1 must be labelled exactly ## REPORT 1: Climate Impact Report and REPORT 2 must be labelled exactly ## REPORT 2: Methodology and Transparency Report. Both must always be present even if data is limited.
+11. REPORT 2 must always include: a full methodology table, all formulas used (shown as: Spend x Emission Factor = Emissions kgCO2e), all assumptions, all caveats, a confidence assessment table with confidence intervals, and a full reference list.
+12. If an uploaded financial file is provided, extract all financial figures, categories, and line items from it and use them as the primary data source for calculations.
+13. Use GRI, TCFD, ESRS, CDP templates.
+14. Never use the word "AI". Refer to yourself as Finance to Impact.
+15. Do not use "---" as a divider.`;
 
 async function doGenerate(){
   const ol=document.getElementById('overlay'); ol.style.display='flex';
@@ -875,7 +911,8 @@ async function doGenerate(){
   window.speechSynthesis?.cancel();
 
   const fd=rows.filter(r=>r.amt);
-  const up=`Company: ${WD.co}\nIndustry: ${WD.ind}\nCountry: ${WD.ktr||'Not specified'}\nEmployees: ${WD.emp||'Not specified'}\nReporting Year: ${WD.yr}\nOperations: ${WD.act||'Not provided'}\nPremises: ${WD.prem||'Not specified'}\nVehicle Fleet: ${WD.flt||'Not specified'}\nManufactures Goods: ${WD.mfg||'Not specified'}\nPurchases from Suppliers: ${WD.sup||'Not specified'}\nElectricity Spend: ${WD.elec||0} ${WD.ec||'GBP'} (${WD.es||'grid'})\nGas/Heating Spend: ${WD.gas||0} ${WD.ec||'GBP'}\nFuel Spend: ${WD.fuel||0} ${WD.ec||'GBP'}\nFinancial Data: ${JSON.stringify(fd)}\nSelected Scopes: ${[...scopes].map(n=>'Scope '+n).join(', ')}\nReport Types: ${selRep.join(', ')}\nOutput Format: ${ofmt}${WD.file?'\nUploaded file: '+WD.file:''}\n\nPlease generate:\n## REPORT 1: Climate Impact Report\nInclude: Executive Summary, Scope 1/2/3 Emissions (tCO2e), Total Carbon Footprint, Intensity Ratios, Recommendations.\n\n## REPORT 2: Methodology and Transparency Report\nInclude: Data Sources, Conversion Factors, Formulas Applied, Assumptions, Caveats, Confidence Assessment (High/Medium/Low), Confidence Intervals, References.\n\nUse markdown headings and tables throughout.`;
+  const fileSection=WD.fileContent ? `\n\nUPLOADED FINANCIAL FILE (${WD.file}):\n${WD.fileContent}\n\nIMPORTANT: Extract all financial figures, line items, account codes, and categories from the uploaded file above. Use this as the PRIMARY data source for all calculations. Map every line item to the appropriate GHG scope and emission category.` : (WD.file ? `\nUploaded file name: ${WD.file} (content could not be read - use any manually entered data below)` : '');
+  const up=`Company: ${WD.co}\nIndustry: ${WD.ind}\nCountry: ${WD.ktr||'Not specified'}\nEmployees: ${WD.emp||'Not specified'}\nReporting Year: ${WD.yr}\nOperations: ${WD.act||'Not provided'}\nPremises: ${WD.prem||'Not specified'}\nVehicle Fleet: ${WD.flt||'Not specified'}\nManufactures Goods: ${WD.mfg||'Not specified'}\nPurchases from Suppliers: ${WD.sup||'Not specified'}\nElectricity Spend: ${WD.elec||0} ${WD.ec||'GBP'} (${WD.es||'grid'})\nGas/Heating Spend: ${WD.gas||0} ${WD.ec||'GBP'}\nFuel Spend: ${WD.fuel||0} ${WD.ec||'GBP'}\nManually Entered Financial Data: ${JSON.stringify(fd)}\nSelected Scopes: ${[...scopes].map(n=>'Scope '+n).join(', ')}\nReport Types: ${selRep.join(', ')}\nOutput Format: ${ofmt}${fileSection}\n\nPlease generate both reports now:\n\n## REPORT 1: Climate Impact Report\nInclude: Executive Summary, Data Gaps Identified (if any - list exactly what is missing and what the user must supply), Scope 1 Emissions table, Scope 2 Emissions table, Scope 3 Emissions table, Total Carbon Footprint summary table, Intensity Ratios, Recommendations.\n\n## REPORT 2: Methodology and Transparency Report\nInclude: Data Sources Used, Conversion Factors table (Category, Factor, Unit, Source), Formulas Applied (show each as: Value x Factor = Result), Assumptions Made, Caveats and Limitations, Confidence Assessment table (Category, tCO2e, Confidence Level, 95% CI Lower, 95% CI Upper, Notes), Statistical Significance notes, Full Reference List.\n\nUse markdown headings and tables throughout. Both reports must always be present.`;
 
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,system:SYS,messages:[{role:'user',content:up}]})});
