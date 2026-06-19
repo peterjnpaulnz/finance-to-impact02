@@ -920,14 +920,115 @@ function displayReports(txt){
 
 function dlRep(n,fmt){
   const txt=n===1?window._r1:window._r2;
-  const tFmts=['txt','csv','json','md','xml'];
-  if(tFmts.includes(fmt)){
-    const c=fmt==='json'?JSON.stringify({report:txt},null,2):txt;
-    const b=new Blob([c],{type:'text/plain'});
-    const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`finance-to-impact-report-${n}.${fmt}`;a.click();URL.revokeObjectURL(u);
-  }else{
-    navigator.clipboard.writeText(txt).then(()=>alert(`Report ${n} copied to clipboard.\n\nFor full ${fmt.toUpperCase()} export, paste into your document editor or contact your administrator to enable server-side export.`)).catch(()=>alert(`Report ${n} is ready. Please copy the content from the panel above.`));
+  const name=`finance-to-impact-report-${n}`;
+  fmt=(fmt||'txt').toLowerCase().trim();
+
+  // Plain text formats — direct download
+  if(['txt','md','xml'].includes(fmt)){
+    dlBlob(txt,'text/plain',`${name}.${fmt}`); return;
   }
+  if(fmt==='json'){
+    dlBlob(JSON.stringify({report:txt},null,2),'application/json',`${name}.json`); return;
+  }
+  if(fmt==='csv'){
+    const rows=txt.split('\n').map(l=>'"'+l.replace(/"/g,'""')+'"');
+    dlBlob(rows.join('\n'),'text/csv',`${name}.csv`); return;
+  }
+
+  // PDF — use jsPDF loaded from CDN
+  if(fmt==='pdf'){
+    if(!window.jspdf){
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      s.onload=()=>makePDF(txt,name);
+      document.head.appendChild(s);
+    } else { makePDF(txt,name); }
+    return;
+  }
+
+  // DOCX — use docx CDN
+  if(fmt==='docx'){
+    if(!window.docx){
+      const s=document.createElement('script');
+      s.src='https://unpkg.com/docx@7.8.2/build/index.js';
+      s.onload=()=>makeDOCX(txt,name);
+      document.head.appendChild(s);
+    } else { makeDOCX(txt,name); }
+    return;
+  }
+
+  // XLSX — use SheetJS
+  if(fmt==='xlsx'){
+    if(!window.XLSX){
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      s.onload=()=>makeXLSX(txt,name);
+      document.head.appendChild(s);
+    } else { makeXLSX(txt,name); }
+    return;
+  }
+
+  // Fallback — download as txt
+  dlBlob(txt,'text/plain',`${name}.txt`);
+}
+
+function dlBlob(content,type,filename){
+  const b=new Blob([content],{type});
+  const u=URL.createObjectURL(b);
+  const a=document.createElement('a');a.href=u;a.download=filename;a.click();
+  setTimeout(()=>URL.revokeObjectURL(u),1000);
+}
+
+function makePDF(txt,name){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const lines=txt.split('\n');
+  let y=20; const lh=7; const margin=15; const maxW=180;
+  doc.setFont('helvetica');
+  lines.forEach(line=>{
+    if(y>270){doc.addPage();y=20;}
+    if(line.startsWith('# ')){
+      doc.setFontSize(16);doc.setTextColor(26,107,60);doc.setFont('helvetica','bold');
+      doc.text(line.replace(/^#+\s*/,''),margin,y);y+=lh+3;
+    } else if(line.startsWith('## ')){
+      doc.setFontSize(13);doc.setTextColor(26,107,60);doc.setFont('helvetica','bold');
+      doc.text(line.replace(/^#+\s*/,''),margin,y);y+=lh+2;
+    } else if(line.startsWith('### ')){
+      doc.setFontSize(11);doc.setTextColor(28,28,28);doc.setFont('helvetica','bold');
+      doc.text(line.replace(/^#+\s*/,''),margin,y);y+=lh+1;
+    } else if(line.trim()===''){
+      y+=3;
+    } else {
+      doc.setFontSize(10);doc.setTextColor(28,28,28);doc.setFont('helvetica','normal');
+      const clean=line.replace(/\*\*(.+?)\*\*/g,'$1').replace(/\*(.+?)\*/g,'$1');
+      const wrapped=doc.splitTextToSize(clean,maxW);
+      wrapped.forEach(wl=>{if(y>270){doc.addPage();y=20;}doc.text(wl,margin,y);y+=lh;});
+    }
+  });
+  doc.save(`${name}.pdf`);
+}
+
+function makeDOCX(txt,name){
+  const {Document,Packer,Paragraph,TextRun,HeadingLevel}=window.docx;
+  const lines=txt.split('\n');
+  const children=lines.map(line=>{
+    if(line.startsWith('## ')) return new Paragraph({heading:HeadingLevel.HEADING_1,children:[new TextRun({text:line.replace(/^##\s*/,''),color:'1A6B3C',bold:true})]});
+    if(line.startsWith('### ')) return new Paragraph({heading:HeadingLevel.HEADING_2,children:[new TextRun({text:line.replace(/^###\s*/,''),bold:true})]});
+    if(line.startsWith('# ')) return new Paragraph({heading:HeadingLevel.HEADING_1,children:[new TextRun({text:line.replace(/^#\s*/,''),color:'1A6B3C',bold:true,size:32})]});
+    if(line.trim()==='') return new Paragraph({children:[new TextRun('')]});
+    const clean=line.replace(/\*\*(.+?)\*\*/g,'$1').replace(/\*(.+?)\*/g,'$1');
+    return new Paragraph({children:[new TextRun({text:clean,size:20})]});
+  });
+  const doc=new Document({sections:[{children}]});
+  Packer.toBlob(doc).then(blob=>dlBlob(blob,'application/vnd.openxmlformats-officedocument.wordprocessingml.document',`${name}.docx`));
+}
+
+function makeXLSX(txt,name){
+  const rows=txt.split('\n').map(l=>[l.replace(/\*\*(.+?)\*\*/g,'$1').replace(/\*(.+?)\*/g,'$1')]);
+  const ws=window.XLSX.utils.aoa_to_sheet(rows);
+  const wb=window.XLSX.utils.book_new();
+  window.XLSX.utils.book_append_sheet(wb,ws,'Report');
+  window.XLSX.writeFile(wb,`${name}.xlsx`);
 }
 function startNewRep(){document.getElementById('repout').style.display='none';document.getElementById('repout').innerHTML='';setMode('g');startWiz();}
 
